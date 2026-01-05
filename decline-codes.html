@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Decline Code Reference - Sweden</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        .code-card { cursor: pointer; transition: all 0.2s; }
+        .code-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .expanded { max-height: 1000px; }
+        .collapsed { max-height: 0; overflow: hidden; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto p-6">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Payment Decline Code Reference</h1>
+            <p class="text-gray-600">Sweden - Swedbank, Nets, and Swedish Banking System</p>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Search by code, name, or description..."
+                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                </div>
+                <select
+                    id="categoryFilter"
+                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <option value="all">All Categories</option>
+                    <option value="issuer">Card/Issuer Issues</option>
+                    <option value="merchant">Merchant/Acquirer</option>
+                    <option value="technical">Terminal/Technical</option>
+                    <option value="network">Network Issues</option>
+                </select>
+            </div>
+            
+            <div class="mt-4 flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full text-sm border bg-orange-100 text-orange-800 border-orange-300">Card/Issuer Issues</span>
+                <span class="px-3 py-1 rounded-full text-sm border bg-blue-100 text-blue-800 border-blue-300">Merchant/Acquirer</span>
+                <span class="px-3 py-1 rounded-full text-sm border bg-purple-100 text-purple-800 border-purple-300">Terminal/Technical</span>
+                <span class="px-3 py-1 rounded-full text-sm border bg-green-100 text-green-800 border-green-300">Network Issues</span>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="mb-4 text-sm text-gray-600">
+            <span id="resultsCount">Showing all codes</span>
+        </div>
+
+        <!-- Decline Codes List -->
+        <div id="codesList"></div>
+
+        <!-- Quick Reference Footer -->
+        <div class="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 class="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                Quick Troubleshooting Tips
+            </h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• If <strong>ALL cards</strong> decline with code 05 or 96: Check terminal connectivity</li>
+                <li>• If <strong>one specific card</strong> declines: Likely issuer/cardholder issue</li>
+                <li>• Codes 51, 54, 55, 61: Customer must resolve with their bank</li>
+                <li>• Codes 03, 12, 58: Configuration issue - contact Swedbank/Nets</li>
+                <li>• Code 91: May indicate issuer system outage or network problem</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const declineCodes = [
+            {
+                code: '05',
+                name: 'Do Not Honor',
+                category: 'issuer',
+                description: 'Generic decline from issuer - multiple possible reasons.',
+                customerSees: 'Transaction declined',
+                merchantSees: 'Declined - Do not honor',
+                responsibility: 'Issuer',
+                canWeFix: 'No - BUT check for patterns',
+                nextSteps: 'If ALL cards decline with 05: check terminal connectivity. If one card: issuer decision.',
+                commonWith: 'Most common decline with Swedbank, Handelsbanken'
+            },
+            {
+                code: '51',
+                name: 'Insufficient Funds',
+                category: 'issuer',
+                description: 'Not enough money in account or credit available.',
+                customerSees: 'Insufficient funds',
+                merchantSees: 'Declined - insufficient funds',
+                responsibility: 'Cardholder/Account balance',
+                canWeFix: 'No',
+                nextSteps: 'Customer needs different payment method or contact bank. Terminal working correctly.',
+                commonWith: 'Very common with Swedbank, SEB debit cards'
+            },
+            {
+                code: '54',
+                name: 'Expired Card',
+                category: 'issuer',
+                description: 'Card expiration date has passed.',
+                customerSees: 'Card expired',
+                merchantSees: 'Expired card',
+                responsibility: 'Cardholder (old card)',
+                canWeFix: 'No',
+                nextSteps: 'Customer needs to use valid card. Check if expiry date read correctly.',
+                commonWith: 'All cards'
+            },
+            {
+                code: '55',
+                name: 'Incorrect PIN',
+                category: 'issuer',
+                description: 'Wrong PIN entered by cardholder.',
+                customerSees: 'Incorrect PIN - try again',
+                merchantSees: 'PIN verification failed',
+                responsibility: 'Cardholder (wrong PIN)',
+                canWeFix: 'No',
+                nextSteps: 'Customer should re-enter PIN. After 3 attempts, card may be blocked.',
+                commonWith: 'Common with BankID-linked cards'
+            },
+            {
+                code: '57',
+                name: 'Transaction Not Permitted',
+                category: 'issuer',
+                description: 'Card restrictions prevent this transaction type or location.',
+                customerSees: 'Transaction not allowed',
+                merchantSees: 'Transaction not permitted for cardholder',
+                responsibility: 'Issuer settings/restrictions',
+                canWeFix: 'Maybe - check merchant setup',
+                nextSteps: 'Check if merchant MCC code is restricted. Verify international cards enabled if foreign card.',
+                commonWith: 'Swedbank when international transactions disabled'
+            },
+            {
+                code: '61',
+                name: 'Exceeds Withdrawal Limit',
+                category: 'issuer',
+                description: 'Transaction exceeds daily or per-transaction limit.',
+                customerSees: 'Amount exceeds limit',
+                merchantSees: 'Amount exceeds card limit',
+                responsibility: 'Issuer/Card limits',
+                canWeFix: 'No',
+                nextSteps: 'Customer should use smaller amount or contact bank to increase limit.',
+                commonWith: 'Common with Nordea, SEB debit cards'
+            },
+            {
+                code: '65',
+                name: 'Activity Limit Exceeded',
+                category: 'issuer',
+                description: 'Too many transactions in short period.',
+                customerSees: 'Too many transactions - try later',
+                merchantSees: 'Activity limit exceeded',
+                responsibility: 'Issuer (velocity limits)',
+                canWeFix: 'No',
+                nextSteps: 'Customer exceeded transaction frequency limit. Wait or contact bank.',
+                commonWith: 'Swedbank, Handelsbanken fraud prevention'
+            },
+            {
+                code: '75',
+                name: 'PIN Tries Exceeded',
+                category: 'issuer',
+                description: 'Too many incorrect PIN attempts.',
+                customerSees: 'Card blocked - contact bank',
+                merchantSees: 'PIN tries exceeded',
+                responsibility: 'Cardholder/Issuer',
+                canWeFix: 'No',
+                nextSteps: 'Card temporarily blocked. Customer must contact bank to unblock.',
+                commonWith: 'All cards after 3 wrong PIN attempts'
+            },
+            {
+                code: '91',
+                name: 'Issuer Unavailable',
+                category: 'network',
+                description: 'Cannot reach issuing bank for authorization.',
+                customerSees: 'Bank temporarily unavailable',
+                merchantSees: 'Issuer timeout/unavailable',
+                responsibility: 'Network/Issuer systems',
+                canWeFix: 'Maybe',
+                nextSteps: 'Check if specific to one card brand. Verify terminal connectivity. May be issuer outage.',
+                commonWith: 'System outages at Swedbank, SEB'
+            },
+            {
+                code: '96',
+                name: 'System Malfunction',
+                category: 'network',
+                description: 'General system error in payment network.',
+                customerSees: 'System error - try again',
+                merchantSees: 'System malfunction',
+                responsibility: 'Network/System',
+                canWeFix: 'Maybe',
+                nextSteps: 'Check terminal connectivity. Verify Nets/Swedbank Pay status. May need retry.',
+                commonWith: 'Nets, Swedbank Pay during technical issues'
+            },
+            {
+                code: '03',
+                name: 'Invalid Merchant',
+                category: 'merchant',
+                description: 'Merchant account is not properly configured or authorized.',
+                customerSees: 'Transaction cannot be processed',
+                merchantSees: 'Invalid merchant configuration',
+                responsibility: 'Acquirer/Merchant',
+                canWeFix: 'Yes - Configuration issue',
+                nextSteps: 'Check merchant account status with Swedbank/Nets. Verify MID is active.',
+                commonWith: 'Nets, Swedbank Pay'
+            },
+            {
+                code: '12',
+                name: 'Invalid Transaction',
+                category: 'technical',
+                description: 'Transaction type not supported or invalid for this card/merchant.',
+                customerSees: 'Transaction cannot be processed',
+                merchantSees: 'Invalid transaction type',
+                responsibility: 'Configuration/Terminal',
+                canWeFix: 'Yes',
+                nextSteps: 'Check terminal settings. Verify transaction type is enabled in merchant account.',
+                commonWith: 'Nets when transaction type not enabled'
+            },
+            {
+                code: '14',
+                name: 'Invalid Card Number',
+                category: 'technical',
+                description: 'Card number fails Luhn check or is improperly formatted.',
+                customerSees: 'Card cannot be read',
+                merchantSees: 'Invalid card number',
+                responsibility: 'Card/Terminal read error',
+                canWeFix: 'Sometimes',
+                nextSteps: 'Try chip instead of swipe. Clean card reader. Check for damaged card.',
+                commonWith: 'Any terminal - hardware issue'
+            },
+            {
+                code: '41',
+                name: 'Lost Card',
+                category: 'issuer',
+                description: 'Card has been reported lost by cardholder.',
+                customerSees: 'Card cannot be used - contact bank',
+                merchantSees: 'Lost card - pick up if possible',
+                responsibility: 'Issuer (card status)',
+                canWeFix: 'No',
+                nextSteps: 'Cardholder reported card lost. They need to contact bank for replacement.',
+                commonWith: 'All Swedish banks'
+            },
+            {
+                code: '43',
+                name: 'Stolen Card',
+                category: 'issuer',
+                description: 'Card has been reported stolen.',
+                customerSees: 'Card cannot be used - contact bank',
+                merchantSees: 'Stolen card - pick up if possible',
+                responsibility: 'Issuer (fraud prevention)',
+                canWeFix: 'No',
+                nextSteps: 'Card flagged as stolen. Cardholder must contact their bank.',
+                commonWith: 'All issuers - fraud flag'
+            }
+        ];
+
+        const categoryColors = {
+            issuer: 'bg-orange-100 text-orange-800 border-orange-300',
+            merchant: 'bg-blue-100 text-blue-800 border-blue-300',
+            technical: 'bg-purple-100 text-purple-800 border-purple-300',
+            network: 'bg-green-100 text-green-800 border-green-300'
+        };
+
+        const categoryNames = {
+            issuer: 'Card/Issuer Issues',
+            merchant: 'Merchant/Acquirer',
+            technical: 'Terminal/Technical',
+            network: 'Network Issues'
+        };
+
+        let expandedCodes = new Set();
+        let filteredCodes = declineCodes;
+
+        function renderCodes() {
+            const container = document.getElementById('codesList');
+            container.innerHTML = '';
+
+            filteredCodes.forEach(code => {
+                const isExpanded = expandedCodes.has(code.code);
+                const colorClass = categoryColors[code.category];
+
+                const card = document.createElement('div');
+                card.className = 'code-card bg-white rounded-lg shadow-sm border border-gray-200 mb-3';
+                card.innerHTML = `
+                    <div class="p-4" onclick="toggleCode('${code.code}')">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-2xl font-bold text-gray-900 font-mono">${code.code}</span>
+                                    <span class="px-3 py-1 rounded-full text-xs font-medium border ${colorClass}">
+                                        ${categoryNames[code.category]}
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-1">${code.name}</h3>
+                                <p class="text-gray-600 text-sm">${code.description}</p>
+                            </div>
+                        </div>
+
+                        <div class="${isExpanded ? 'expanded' : 'collapsed'}" style="transition: max-height 0.3s ease;">
+                            <div class="mt-4 pt-4 border-t border-gray-200 grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Customer Sees:</p>
+                                        <p class="text-sm text-gray-700 bg-red-50 p-2 rounded">${code.customerSees}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Merchant Sees:</p>
+                                        <p class="text-sm text-gray-700 bg-blue-50 p-2 rounded">${code.merchantSees}</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Responsibility:</p>
+                                        <p class="text-sm font-medium text-gray-900">${code.responsibility}</p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Can Support Fix?</p>
+                                        <p class="text-sm font-medium ${code.canWeFix.includes('Yes') ? 'text-green-700' : 'text-red-700'}">
+                                            ${code.canWeFix}
+                                        </p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Next Steps:</p>
+                                        <p class="text-sm text-gray-700 bg-yellow-50 p-2 rounded">${code.nextSteps}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Common With:</p>
+                                        <p class="text-sm text-gray-600 italic">${code.commonWith}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            document.getElementById('resultsCount').textContent = 
+                `Showing ${filteredCodes.length} of ${declineCodes.length} decline codes`;
+        }
+
+        function toggleCode(code) {
+            if (expandedCodes.has(code)) {
+                expandedCodes.delete(code);
+            } else {
+                expandedCodes.add(code);
+            }
+            renderCodes();
+        }
+
+        function filterCodes() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+
+            filteredCodes = declineCodes.filter(code => {
+                const matchesSearch = 
+                    code.code.toLowerCase().includes(searchTerm) ||
+                    code.name.toLowerCase().includes(searchTerm) ||
+                    code.description.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = category === 'all' || code.category === category;
+                
+                return matchesSearch && matchesCategory;
+            });
+
+            renderCodes();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', filterCodes);
+        document.getElementById('categoryFilter').addEventListener('change', filterCodes);
+
+        // Initial render
+        renderCodes();
+    </script>
+</body>
+</html>
