@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Root Cause Analysis Training</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState } = React;
+
+    const RootCauseAnalysisTraining = () => {
+      const [activeScenario, setActiveScenario] = useState(null);
+      const [showAnswer, setShowAnswer] = useState(false);
+      const [showTemplate, setShowTemplate] = useState(true);
+
+      const categories = {
+        hardware: { color: 'bg-red-100 text-red-700 border-red-300', label: 'Hardware' },
+        power: { color: 'bg-yellow-100 text-yellow-700 border-yellow-300', label: 'Power Source' },
+        network: { color: 'bg-blue-100 text-blue-700 border-blue-300', label: 'Network' },
+        config: { color: 'bg-purple-100 text-purple-700 border-purple-300', label: 'Configuration' },
+        software: { color: 'bg-green-100 text-green-700 border-green-300', label: 'Software' },
+        agreement: { color: 'bg-orange-100 text-orange-700 border-orange-300', label: 'Agreement/KYC' },
+        integration: { color: 'bg-pink-100 text-pink-700 border-pink-300', label: 'Integration' }
+      };
+
+      const scenarios = [
+        {
+          id: 1,
+          title: "The Blank Screen Mystery",
+          category: "power",
+          merchantSays: "My terminal screen is completely black. I tried pressing buttons but nothing happens. It was working fine yesterday when we closed the shop.",
+          additionalInfo: [
+            "Terminal model: Verifone VX 520 (countertop)",
+            "The merchant moved the terminal to a different counter last night to clean",
+            "There are no lights on the terminal at all",
+            "Other devices on the same counter are working (computer, lamp)"
+          ],
+          keyQuestions: [
+            "Is the power cable firmly connected to both the terminal and the wall outlet?",
+            "Was the power cable disconnected when moving the terminal?",
+            "Is the power adapter showing any indicator lights?",
+            "Have you tried a different power outlet?"
+          ],
+          rootCause: "Power Source - Disconnected or loose power cable",
+          explanation: "When the merchant moved the terminal to clean, the power cable was likely disconnected or came loose. The VX 520 is a countertop terminal that requires constant power. No lights on the terminal indicates no power is reaching the device. Since other devices work on the same counter, the outlet is fine - the issue is the connection between the power adapter and the terminal.",
+          resolution: "Ask the merchant to check that the power cable is firmly connected at both ends (terminal and wall). If using a power adapter, ensure it's properly connected. The terminal should power on automatically once power is restored."
+        },
+        {
+          id: 2,
+          title: "The Unresponsive Card Reader",
+          category: "hardware",
+          merchantSays: "Customers can tap their cards and it works, but when they try to insert chip cards, the terminal doesn't read them at all. No error message, it just doesn't recognize the card is there.",
+          additionalInfo: [
+            "Terminal model: Verifone P400 PIN Pad",
+            "Contactless (tap) payments work perfectly",
+            "Magnetic swipe also works",
+            "The issue started about a week ago",
+            "The merchant mentions they had a very busy period recently with many transactions"
+          ],
+          keyQuestions: [
+            "Does the terminal display any prompt when a chip card is inserted?",
+            "Have you tried different chip cards from different banks?",
+            "Is there anything visible inside the chip card slot (debris, damage)?",
+            "Has the terminal been dropped or physically damaged recently?"
+          ],
+          rootCause: "Hardware - Chip card reader malfunction or contamination",
+          explanation: "The fact that contactless and magnetic stripe work but chip doesn't indicates an isolated issue with the EMV chip reader component. After a busy period with many card insertions, the chip reader contacts can become dirty or worn. Debris from card chips can accumulate in the slot. Since there's no error message, the reader isn't detecting the card at all, suggesting a hardware issue rather than a card problem.",
+          resolution: "First, recommend using a chip reader cleaning card to clean the contacts. If that doesn't work, the chip reader component may be damaged and the terminal will need to be replaced or sent for service. In the meantime, the merchant can continue accepting contactless and swipe payments."
+        },
+        {
+          id: 3,
+          title: "The Connection That Keeps Dropping",
+          category: "network",
+          merchantSays: "The terminal connects in the morning but then loses connection randomly throughout the day. Sometimes it reconnects by itself, sometimes we have to restart it. It's very frustrating because we lose sales.",
+          additionalInfo: [
+            "Terminal model: Verifone T650p (portable, wireless)",
+            "Terminal uses Wi-Fi connection",
+            "The merchant's shop has thick concrete walls",
+            "The Wi-Fi router is located in the back office",
+            "The terminal is used throughout the shop, including near the entrance far from the router",
+            "The merchant recently added new equipment (microwave, wireless speaker system)"
+          ],
+          keyQuestions: [
+            "Does the connection drop more frequently in certain areas of the shop?",
+            "What is the Wi-Fi signal strength showing on the terminal?",
+            "Have you added any new electronic equipment recently?",
+            "How far is the terminal from the Wi-Fi router when it disconnects?"
+          ],
+          rootCause: "Network - Wi-Fi signal interference and weak coverage",
+          explanation: "Multiple factors point to Wi-Fi issues: thick concrete walls reduce signal strength, the router being far from where the terminal is used, and new equipment (especially microwaves) can cause interference on the 2.4GHz band. The T650p is portable and gets moved around, so when it's far from the router or near interfering equipment, it loses connection.",
+          resolution: "Recommend: 1) Keep the terminal closer to the router when possible, 2) Consider adding a Wi-Fi range extender or moving the router, 3) Check if the terminal can connect to 5GHz band (less interference), 4) Keep the terminal away from microwaves and wireless speakers during transactions. If issues persist, consider switching to a terminal with SIM card connectivity."
+        },
+        {
+          id: 4,
+          title: "The Wrong Business Name",
+          category: "config",
+          merchantSays: "We just received our new terminal and set it up, but the receipts are printing with our old business name. We changed our company name three months ago. Also, the address on the receipt is our old location.",
+          additionalInfo: [
+            "The merchant rebranded and moved locations 3 months ago",
+            "They received a replacement terminal for a damaged one",
+            "The old terminal had the correct new business name",
+            "The terminal is processing transactions normally",
+            "The merchant ID and terminal ID appear to be correct"
+          ],
+          keyQuestions: [
+            "Is this a brand new terminal or a replacement?",
+            "Were the business details updated with the payment provider after the rebrand?",
+            "Did your previous terminal show the correct business name?",
+            "Have you received any confirmation that the new details were saved in the system?"
+          ],
+          rootCause: "Configuration - Terminal loaded with outdated merchant parameters",
+          explanation: "When a replacement terminal is set up, it downloads the merchant configuration (parameters) from the central system. If the central database wasn't updated with the new business name and address, or if the terminal was configured with an older parameter file, it will show outdated information. The fact that the old terminal had correct info suggests the update was done but the new terminal pulled old data.",
+          resolution: "The merchant parameters need to be updated and re-downloaded to the terminal. This typically requires the support team to update the merchant profile in the back-end system, then trigger a parameter download to the terminal. The merchant may need to perform a 'parameter download' from the terminal menu, or wait for the next automatic update."
+        },
+        {
+          id: 5,
+          title: "The Declined Transactions Mystery",
+          category: "software",
+          merchantSays: "Since this morning, all card transactions are being declined. Every single card - Visa, Mastercard, even debit cards. The terminal shows 'Declined' but no other error message. We haven't changed anything.",
+          additionalInfo: [
+            "The terminal was working fine until closing time yesterday",
+            "The terminal shows it's connected to the network",
+            "Multiple different cards from different customers all decline",
+            "The terminal date shows '01/01/2020' (incorrect)",
+            "The merchant did not perform any updates or changes",
+            "The battery was completely drained overnight (portable terminal)"
+          ],
+          keyQuestions: [
+            "What date and time is showing on the terminal?",
+            "Did the terminal lose power or was the battery fully drained recently?",
+            "Are there any error messages in the terminal logs or reports?",
+            "When was the last successful transaction?"
+          ],
+          rootCause: "Software - Incorrect system date/time causing security validation failures",
+          explanation: "When a terminal's battery completely drains, it can lose its date/time settings and reset to a default date (like 01/01/2020). Payment transactions are validated against timestamps - if the terminal date is years in the past or future, the security certificates and transaction timestamps appear invalid to the payment processor, causing all transactions to be declined. This is a security feature to prevent fraud.",
+          resolution: "The terminal's date and time need to be corrected. This may be done manually in the settings menu (if accessible) or by performing a parameter download which usually syncs the time. For portable terminals, ensure they are charged regularly to prevent complete battery drain. After correcting the date/time, the terminal should process transactions normally."
+        },
+        {
+          id: 6,
+          title: "The Urgent KYC Warning",
+          category: "agreement",
+          merchantSays: "We received an email saying our payment services will be terminated in 14 days if we don't complete some KYC form. Is this real or a scam? We've been a customer for 5 years and never had issues.",
+          additionalInfo: [
+            "The email came from kyc@swedbankpay.com",
+            "The merchant hasn't updated their business information in 3 years",
+            "They recently added a new business partner/owner",
+            "The merchant is worried about sharing sensitive business information",
+            "Other merchants they know have received similar emails"
+          ],
+          keyQuestions: [
+            "What email address did the message come from exactly?",
+            "Have there been any changes to your business structure, ownership, or activities recently?",
+            "When did you last update your business information with us?",
+            "Have you logged into the merchant portal to check for any pending requests?"
+          ],
+          rootCause: "Agreement - Required KYC (Know Your Customer) update not completed",
+          explanation: "This is legitimate, not a scam. Payment providers are legally required to maintain up-to-date information about their merchants (KYC - Know Your Customer) to comply with anti-money laundering regulations. KYC reviews are triggered periodically or when changes are detected (like a new business partner). If the merchant doesn't provide the required information, the provider is legally obligated to suspend services.",
+          resolution: "Reassure the merchant this is a legitimate and normal process. Direct them to complete the KYC form either digitally through the merchant portal or via the link in the email. Explain that this is required by law to prevent financial crime. Emphasize the deadline and consequences of not responding. If they have questions about what information is needed, they can contact the KYC team directly."
+        },
+        {
+          id: 7,
+          title: "The POS System Disconnect",
+          category: "integration",
+          merchantSays: "Our cash register used to send the amount directly to the terminal, but now we have to type the amount manually on the terminal every time. It's slowing everything down and we're making mistakes.",
+          additionalInfo: [
+            "Terminal model: Verifone P400 connected to POS system",
+            "The integration was working until they updated their POS software last week",
+            "The terminal is physically connected via USB cable",
+            "The POS system shows 'Terminal not found' error",
+            "No changes were made to the terminal itself"
+          ],
+          keyQuestions: [
+            "When did this issue start? Did anything change around that time?",
+            "What type of connection does the terminal use to the POS (USB, Serial, Ethernet)?",
+            "Did you update any software on the POS or terminal recently?",
+            "Does the POS system show any error messages when trying to connect to the terminal?"
+          ],
+          rootCause: "Integration - POS software update broke terminal communication protocol",
+          explanation: "The P400 PIN pad relies on communication with the POS system to receive transaction amounts and return payment results. When the POS software was updated, the integration/communication settings may have changed, drivers may have been reset, or the communication protocol might have changed. The terminal itself is fine (merchant can type amounts manually), but the automated connection between POS and terminal is broken.",
+          resolution: "This requires coordination between the POS vendor and payment terminal support. The merchant should contact their POS software provider to check if the terminal integration settings need to be reconfigured after the update. They may need to: 1) Reinstall the terminal drivers, 2) Reconfigure the COM port or USB settings, 3) Update the integration module to match the new POS version. As a temporary workaround, manual amount entry can be used."
+        },
+        {
+          id: 8,
+          title: "The Partial Payment Problem",
+          category: "config",
+          merchantSays: "A customer wanted to split their payment between two cards, but the terminal doesn't give us that option anymore. We used to be able to do this. Also, the contactless limit seems wrong - it's asking for PIN on small amounts.",
+          additionalInfo: [
+            "Terminal was replaced 2 weeks ago due to damage",
+            "The old terminal allowed split payments",
+            "Contactless PIN is being requested for transactions over 200 SEK (should be 400 SEK)",
+            "The terminal is processing normal transactions fine",
+            "The merchant hasn't contacted support since receiving the replacement"
+          ],
+          keyQuestions: [
+            "Is this a new/replacement terminal or the same one you've always had?",
+            "Were there specific features enabled on your old terminal that you requested?",
+            "What is the contactless limit showing in the terminal settings (if accessible)?",
+            "Did you have any custom configurations on your previous terminal?"
+          ],
+          rootCause: "Configuration - Replacement terminal missing custom feature configurations",
+          explanation: "When a terminal is replaced, it receives a standard configuration. Custom features like split payments and adjusted contactless limits are not always automatically transferred to the new terminal. These features require specific configuration flags to be enabled. The replacement terminal was set up with default settings, not the merchant's custom profile from their previous terminal.",
+          resolution: "Document what features the merchant needs (split payments, correct contactless limit of 400 SEK) and submit a configuration change request. The back-end team will need to update the merchant's terminal profile and push a parameter update. Explain to the merchant that custom features need to be re-enabled on replacement terminals and this is a known step in the replacement process."
+        }
+      ];
+
+      const rootCauseTemplate = {
+        title: "Root Cause Analysis Template",
+        sections: [
+          {
+            name: "1. GATHER - Collect Information",
+            color: "bg-blue-50 border-blue-200",
+            questions: [
+              "What exactly is happening? (Describe the symptom)",
+              "When did it start? What was the last time it worked correctly?",
+              "Did anything change recently? (Updates, moves, new equipment, etc.)",
+              "Is it affecting all transactions or only specific types?",
+              "What terminal model is it? (Countertop, portable, PIN pad?)"
+            ]
+          },
+          {
+            name: "2. ISOLATE - Narrow Down the Problem",
+            color: "bg-yellow-50 border-yellow-200",
+            questions: [
+              "Does the issue occur all the time or intermittently?",
+              "Have you tried restarting the terminal?",
+              "Are other functions working? (Display, printer, specific card readers)",
+              "Is the issue with one terminal or multiple?",
+              "Are other merchants reporting similar issues?"
+            ]
+          },
+          {
+            name: "3. IDENTIFY - Determine the Category",
+            color: "bg-green-50 border-green-200",
+            questions: [
+              "HARDWARE: Are there physical signs of damage? Do specific components not work?",
+              "POWER: Are there any lights on? Did power get interrupted?",
+              "NETWORK: Is the terminal showing connected? Can it communicate?",
+              "CONFIGURATION: Did settings change? Is it a new/replacement terminal?",
+              "SOFTWARE: Is the date/time correct? Are there error codes?",
+              "AGREEMENT: Are there pending KYC requests? Is the merchant account active?",
+              "INTEGRATION: Is this connected to a POS? Did the POS software change?"
+            ]
+          },
+          {
+            name: "4. VERIFY - Confirm Your Hypothesis",
+            color: "bg-purple-50 border-purple-200",
+            questions: [
+              "Does my suspected cause explain ALL the symptoms?",
+              "If I'm right, what should happen when we apply the fix?",
+              "Are there any other possible causes I should rule out first?",
+              "Do I have enough information to proceed, or do I need more details?"
+            ]
+          },
+          {
+            name: "5. RESOLVE - Apply Solution & Confirm",
+            color: "bg-pink-50 border-pink-200",
+            questions: [
+              "What is the fix? Can the merchant do it themselves?",
+              "If not, what needs to be escalated and to whom?",
+              "How will we confirm the issue is resolved?",
+              "What should the merchant do if the issue returns?"
+            ]
+          }
+        ]
+      };
+
+      const categoryOrder = ['hardware', 'power', 'network', 'config', 'software', 'agreement', 'integration'];
+
+      return (
+        <div className="min-h-screen bg-gray-100 p-4">
+          <div className="max-w-6xl mx-auto">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+              <h1 className="text-2xl font-bold text-gray-800 mb-2">Root Cause Analysis Training</h1>
+              <p className="text-gray-600">Practice identifying the root cause of terminal issues. Read each scenario, think about what could be wrong, then reveal the answer.</p>
+              
+              {/* Category Legend */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="text-sm text-gray-500 mr-2">Categories:</span>
+                {categoryOrder.map(key => (
+                  <span key={key} className={`text-xs px-2 py-1 rounded-full border ${categories[key].color}`}>
+                    {categories[key].label}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Toggle Template */}
+            <button
+              onClick={() => setShowTemplate(!showTemplate)}
+              className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
+            >
+              {showTemplate ? '📋 Hide' : '📋 Show'} Root Cause Analysis Template
+            </button>
+
+            {/* Template Section */}
+            {showTemplate && (
+              <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h2 className="text-xl font-bold text-gray-800 mb-4">{rootCauseTemplate.title}</h2>
+                <p className="text-gray-600 mb-4">Use this framework when troubleshooting any terminal issue:</p>
+                
+                <div className="space-y-4">
+                  {rootCauseTemplate.sections.map((section, idx) => (
+                    <div key={idx} className={`p-4 rounded-lg border-2 ${section.color}`}>
+                      <h3 className="font-bold text-gray-800 mb-2">{section.name}</h3>
+                      <ul className="space-y-1">
+                        {section.questions.map((q, qIdx) => (
+                          <li key={qIdx} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-gray-400 mt-0.5">→</span>
+                            {q}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Quick Decision Tree */}
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+                  <h3 className="font-bold text-gray-800 mb-3">🎯 Quick Category Identifier</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-500">●</span>
+                      <span><strong>No lights at all?</strong> → Power Source</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-red-500">●</span>
+                      <span><strong>One reader doesn't work?</strong> → Hardware</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-blue-500">●</span>
+                      <span><strong>Connection drops/errors?</strong> → Network</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-purple-500">●</span>
+                      <span><strong>Wrong info on receipts?</strong> → Configuration</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-green-500">●</span>
+                      <span><strong>All cards declined?</strong> → Software (check date/time)</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-orange-500">●</span>
+                      <span><strong>Service termination warning?</strong> → Agreement/KYC</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-pink-500">●</span>
+                      <span><strong>POS not sending amounts?</strong> → Integration</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-purple-500">●</span>
+                      <span><strong>Feature missing after replacement?</strong> → Configuration</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Scenarios Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {scenarios.map((scenario) => (
+                <div
+                  key={scenario.id}
+                  onClick={() => { setActiveScenario(scenario); setShowAnswer(false); }}
+                  className={`bg-white rounded-xl shadow-lg p-5 cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] ${
+                    activeScenario?.id === scenario.id ? 'ring-2 ring-blue-500' : ''
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-sm font-medium text-gray-400">Scenario {scenario.id}</span>
+                    <span className={`text-xs px-2 py-1 rounded-full border ${categories[scenario.category].color}`}>
+                      {categories[scenario.category].label}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-gray-800 mb-2">{scenario.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2">"{scenario.merchantSays.substring(0, 100)}..."</p>
+                  <div className="mt-3 text-blue-600 text-sm font-medium">Click to analyze →</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Active Scenario Detail */}
+            {activeScenario && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <span className="text-sm text-gray-400">Scenario {activeScenario.id}</span>
+                    <h2 className="text-xl font-bold text-gray-800">{activeScenario.title}</h2>
+                  </div>
+                  <span className={`text-sm px-3 py-1 rounded-full border ${categories[activeScenario.category].color}`}>
+                    {categories[activeScenario.category].label}
+                  </span>
+                </div>
+
+                {/* Merchant Says */}
+                <div className="bg-blue-50 rounded-lg p-4 mb-4">
+                  <h3 className="font-semibold text-blue-800 mb-2">📞 What the merchant says:</h3>
+                  <p className="text-gray-700 italic">"{activeScenario.merchantSays}"</p>
+                </div>
+
+                {/* Additional Info */}
+                <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                  <h3 className="font-semibold text-gray-800 mb-2">📋 Additional information gathered:</h3>
+                  <ul className="space-y-1">
+                    {activeScenario.additionalInfo.map((info, idx) => (
+                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                        <span className="text-gray-400">•</span>
+                        {info}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Key Questions */}
+                <div className="bg-yellow-50 rounded-lg p-4 mb-4">
+                  <h3 className="font-semibold text-yellow-800 mb-2">❓ Key questions to consider:</h3>
+                  <ul className="space-y-1">
+                    {activeScenario.keyQuestions.map((q, idx) => (
+                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                        <span className="text-yellow-500">{idx + 1}.</span>
+                        {q}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Think About It Prompt */}
+                {!showAnswer && (
+                  <div className="text-center py-6">
+                    <p className="text-gray-600 mb-4">Think about what could be the root cause before revealing the answer...</p>
+                    <button
+                      onClick={() => setShowAnswer(true)}
+                      className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                    >
+                      🔍 Reveal Root Cause Analysis
+                    </button>
+                  </div>
+                )}
+
+                {/* Answer Section */}
+                {showAnswer && (
+                  <div className="space-y-4 border-t-2 border-gray-200 pt-4 mt-4">
+                    {/* Root Cause */}
+                    <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                      <h3 className="font-bold text-red-800 mb-1">🎯 Root Cause:</h3>
+                      <p className="text-gray-800 font-medium">{activeScenario.rootCause}</p>
+                    </div>
+
+                    {/* Explanation */}
+                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                      <h3 className="font-bold text-blue-800 mb-1">💡 Explanation:</h3>
+                      <p className="text-gray-700">{activeScenario.explanation}</p>
+                    </div>
+
+                    {/* Resolution */}
+                    <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                      <h3 className="font-bold text-green-800 mb-1">✅ Resolution:</h3>
+                      <p className="text-gray-700">{activeScenario.resolution}</p>
+                    </div>
+
+                    {/* Next Scenario Button */}
+                    <div className="flex justify-between items-center pt-4">
+                      <button
+                        onClick={() => setShowAnswer(false)}
+                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                      >
+                        ← Hide Answer
+                      </button>
+                      {activeScenario.id < scenarios.length && (
+                        <button
+                          onClick={() => {
+                            setActiveScenario(scenarios[activeScenario.id]);
+                            setShowAnswer(false);
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                          Next Scenario →
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tips Footer */}
+            <div className="mt-6 bg-indigo-50 rounded-xl p-6">
+              <h3 className="font-bold text-indigo-800 mb-3">💡 Remember: The 5 Whys Technique</h3>
+              <p className="text-gray-700 mb-3">When analyzing root causes, keep asking "Why?" to dig deeper:</p>
+              <div className="text-sm text-gray-600 space-y-1 pl-4">
+                <p><strong>1.</strong> Why is the terminal not working? → "The screen is blank"</p>
+                <p><strong>2.</strong> Why is the screen blank? → "There's no power"</p>
+                <p><strong>3.</strong> Why is there no power? → "The cable is disconnected"</p>
+                <p><strong>4.</strong> Why is the cable disconnected? → "The merchant moved the terminal"</p>
+                <p><strong>5.</strong> Why wasn't it reconnected? → "They didn't realize it came loose"</p>
+                <p className="pt-2 text-indigo-700 font-medium">→ Root Cause: Cable disconnected during terminal relocation. Resolution: Reconnect and educate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<RootCauseAnalysisTraining />);
+  </script>
+</body>
+</html>
