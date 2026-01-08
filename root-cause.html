@@ -8,6 +8,9 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    .transition-all { transition: all 0.3s ease; }
+  </style>
 </head>
 <body>
   <div id="root"></div>
@@ -17,9 +20,11 @@
 
     const RootCauseAnalysisTraining = () => {
       const [activeScenario, setActiveScenario] = useState(null);
-      const [showAnswer, setShowAnswer] = useState(false);
-      const [showTemplate, setShowTemplate] = useState(true);
       const [showInstructions, setShowInstructions] = useState(true);
+      const [activeTemplateStep, setActiveTemplateStep] = useState(null);
+      const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
+      const [showKeyQuestions, setShowKeyQuestions] = useState(false);
+      const [showAnswer, setShowAnswer] = useState(false);
 
       const categories = {
         hardware: { color: 'bg-red-100 text-red-700 border-red-300', label: 'Hardware' },
@@ -30,6 +35,79 @@
         agreement: { color: 'bg-orange-100 text-orange-700 border-orange-300', label: 'Agreement/KYC' },
         integration: { color: 'bg-pink-100 text-pink-700 border-pink-300', label: 'Integration' }
       };
+
+      const templateSteps = [
+        {
+          id: 'gather',
+          title: 'GATHER',
+          subtitle: 'Collect Information',
+          color: 'bg-blue-500 hover:bg-blue-600',
+          activeColor: 'bg-blue-600 ring-4 ring-blue-300',
+          questions: [
+            "What exactly is happening? (Describe the symptom)",
+            "When did it start? What was the last time it worked correctly?",
+            "Did anything change recently? (Updates, moves, new equipment)",
+            "Is it affecting all transactions or only specific types?",
+            "What terminal model is it? (Countertop, portable, PIN pad?)"
+          ]
+        },
+        {
+          id: 'isolate',
+          title: 'ISOLATE',
+          subtitle: 'Narrow Down the Problem',
+          color: 'bg-yellow-500 hover:bg-yellow-600',
+          activeColor: 'bg-yellow-600 ring-4 ring-yellow-300',
+          questions: [
+            "Does the issue occur all the time or intermittently?",
+            "Have you tried restarting the terminal?",
+            "Are other functions working? (Display, printer, card readers)",
+            "Is the issue with one terminal or multiple?",
+            "Are other merchants reporting similar issues?"
+          ]
+        },
+        {
+          id: 'identify',
+          title: 'IDENTIFY',
+          subtitle: 'Determine the Category',
+          color: 'bg-green-500 hover:bg-green-600',
+          activeColor: 'bg-green-600 ring-4 ring-green-300',
+          questions: [
+            "HARDWARE: Are there physical signs of damage?",
+            "POWER: Are there any lights on? Did power get interrupted?",
+            "NETWORK: Is the terminal showing connected?",
+            "CONFIGURATION: Is it a new/replacement terminal?",
+            "SOFTWARE: Is the date/time correct? Any error codes?",
+            "AGREEMENT: Are there pending KYC requests?",
+            "INTEGRATION: Is this connected to a POS? Did software change?"
+          ]
+        },
+        {
+          id: 'verify',
+          title: 'VERIFY',
+          subtitle: 'Confirm Your Hypothesis',
+          color: 'bg-purple-500 hover:bg-purple-600',
+          activeColor: 'bg-purple-600 ring-4 ring-purple-300',
+          questions: [
+            "Does my suspected cause explain ALL the symptoms?",
+            "If I'm right, what should happen when we apply the fix?",
+            "Are there other possible causes I should rule out?",
+            "Do I have enough information to proceed?"
+          ]
+        },
+        {
+          id: 'resolve',
+          title: 'RESOLVE',
+          subtitle: 'Apply Solution & Confirm',
+          color: 'bg-pink-500 hover:bg-pink-600',
+          activeColor: 'bg-pink-600 ring-4 ring-pink-300',
+          questions: [
+            "What is the fix? Can the merchant do it themselves?",
+            "If not, what needs to be escalated and to whom?",
+            "How will we confirm the issue is resolved?",
+            "What should the merchant do if the issue returns?"
+          ]
+        }
+      ];
 
       const scenarios = [
         {
@@ -63,7 +141,7 @@
             "Contactless (tap) payments work perfectly",
             "Magnetic swipe also works",
             "The issue started about a week ago",
-            "The merchant mentions they had a very busy period recently with many transactions"
+            "The merchant mentions they had a very busy period recently"
           ],
           keyQuestions: [
             "Does the terminal display any prompt when a chip card is inserted?",
@@ -72,7 +150,7 @@
             "Has the terminal been dropped or physically damaged recently?"
           ],
           rootCause: "Hardware - Chip card reader malfunction or contamination",
-          explanation: "The fact that contactless and magnetic stripe work but chip doesn't indicates an isolated issue with the EMV chip reader component. After a busy period with many card insertions, the chip reader contacts can become dirty or worn. Debris from card chips can accumulate in the slot. Since there's no error message, the reader isn't detecting the card at all, suggesting a hardware issue rather than a card problem.",
+          explanation: "The fact that contactless and magnetic stripe work but chip doesn't indicates an isolated issue with the EMV chip reader component. After a busy period with many card insertions, the chip reader contacts can become dirty or worn. Since there's no error message, the reader isn't detecting the card at all, suggesting a hardware issue.",
           resolution: "First, recommend using a chip reader cleaning card to clean the contacts. If that doesn't work, the chip reader component may be damaged and the terminal will need to be replaced or sent for service. In the meantime, the merchant can continue accepting contactless and swipe payments."
         },
         {
@@ -85,8 +163,7 @@
             "Terminal uses Wi-Fi connection",
             "The merchant's shop has thick concrete walls",
             "The Wi-Fi router is located in the back office",
-            "The terminal is used throughout the shop, including near the entrance far from the router",
-            "The merchant recently added new equipment (microwave, wireless speaker system)"
+            "The merchant recently added a microwave and wireless speakers"
           ],
           keyQuestions: [
             "Does the connection drop more frequently in certain areas of the shop?",
@@ -96,7 +173,7 @@
           ],
           rootCause: "Network - Wi-Fi signal interference and weak coverage",
           explanation: "Multiple factors point to Wi-Fi issues: thick concrete walls reduce signal strength, the router being far from where the terminal is used, and new equipment (especially microwaves) can cause interference on the 2.4GHz band. The T650p is portable and gets moved around, so when it's far from the router or near interfering equipment, it loses connection.",
-          resolution: "Recommend: 1) Keep the terminal closer to the router when possible, 2) Consider adding a Wi-Fi range extender or moving the router, 3) Check if the terminal can connect to 5GHz band (less interference), 4) Keep the terminal away from microwaves and wireless speakers during transactions. If issues persist, consider switching to a terminal with SIM card connectivity."
+          resolution: "Recommend: 1) Keep the terminal closer to the router when possible, 2) Consider adding a Wi-Fi range extender, 3) Check if the terminal can connect to 5GHz band (less interference), 4) Keep the terminal away from microwaves during transactions. If issues persist, consider a terminal with SIM card connectivity."
         },
         {
           id: 4,
@@ -114,11 +191,11 @@
             "Is this a brand new terminal or a replacement?",
             "Were the business details updated with the payment provider after the rebrand?",
             "Did your previous terminal show the correct business name?",
-            "Have you received any confirmation that the new details were saved in the system?"
+            "Have you received confirmation that the new details were saved?"
           ],
           rootCause: "Configuration - Terminal loaded with outdated merchant parameters",
-          explanation: "When a replacement terminal is set up, it downloads the merchant configuration (parameters) from the central system. If the central database wasn't updated with the new business name and address, or if the terminal was configured with an older parameter file, it will show outdated information. The fact that the old terminal had correct info suggests the update was done but the new terminal pulled old data.",
-          resolution: "The merchant parameters need to be updated and re-downloaded to the terminal. This typically requires the support team to update the merchant profile in the back-end system, then trigger a parameter download to the terminal. The merchant may need to perform a 'parameter download' from the terminal menu, or wait for the next automatic update."
+          explanation: "When a replacement terminal is set up, it downloads the merchant configuration (parameters) from the central system. If the central database wasn't updated with the new business name and address, or if the terminal was configured with an older parameter file, it will show outdated information.",
+          resolution: "The merchant parameters need to be updated and re-downloaded to the terminal. This typically requires the support team to update the merchant profile in the back-end system, then trigger a parameter download. The merchant may need to perform a 'parameter download' from the terminal menu."
         },
         {
           id: 5,
@@ -130,18 +207,17 @@
             "The terminal shows it's connected to the network",
             "Multiple different cards from different customers all decline",
             "The terminal date shows '01/01/2020' (incorrect)",
-            "The merchant did not perform any updates or changes",
             "The battery was completely drained overnight (portable terminal)"
           ],
           keyQuestions: [
             "What date and time is showing on the terminal?",
-            "Did the terminal lose power or was the battery fully drained recently?",
-            "Are there any error messages in the terminal logs or reports?",
+            "Did the terminal lose power or was the battery fully drained?",
+            "Are there any error messages in the terminal logs?",
             "When was the last successful transaction?"
           ],
           rootCause: "Software - Incorrect system date/time causing security validation failures",
-          explanation: "When a terminal's battery completely drains, it can lose its date/time settings and reset to a default date (like 01/01/2020). Payment transactions are validated against timestamps - if the terminal date is years in the past or future, the security certificates and transaction timestamps appear invalid to the payment processor, causing all transactions to be declined. This is a security feature to prevent fraud.",
-          resolution: "The terminal's date and time need to be corrected. This may be done manually in the settings menu (if accessible) or by performing a parameter download which usually syncs the time. For portable terminals, ensure they are charged regularly to prevent complete battery drain. After correcting the date/time, the terminal should process transactions normally."
+          explanation: "When a terminal's battery completely drains, it can lose its date/time settings and reset to a default date (like 01/01/2020). Payment transactions are validated against timestamps - if the terminal date is years in the past, the security certificates appear invalid to the payment processor, causing all transactions to be declined.",
+          resolution: "The terminal's date and time need to be corrected. This may be done manually in the settings menu or by performing a parameter download which usually syncs the time. For portable terminals, ensure they are charged regularly to prevent complete battery drain."
         },
         {
           id: 6,
@@ -157,133 +233,40 @@
           ],
           keyQuestions: [
             "What email address did the message come from exactly?",
-            "Have there been any changes to your business structure, ownership, or activities recently?",
+            "Have there been any changes to your business structure or ownership?",
             "When did you last update your business information with us?",
-            "Have you logged into the merchant portal to check for any pending requests?"
+            "Have you logged into the merchant portal to check for pending requests?"
           ],
           rootCause: "Agreement - Required KYC (Know Your Customer) update not completed",
-          explanation: "This is legitimate, not a scam. Payment providers are legally required to maintain up-to-date information about their merchants (KYC - Know Your Customer) to comply with anti-money laundering regulations. KYC reviews are triggered periodically or when changes are detected (like a new business partner). If the merchant doesn't provide the required information, the provider is legally obligated to suspend services.",
-          resolution: "Reassure the merchant this is a legitimate and normal process. Direct them to complete the KYC form either digitally through the merchant portal or via the link in the email. Explain that this is required by law to prevent financial crime. Emphasize the deadline and consequences of not responding. If they have questions about what information is needed, they can contact the KYC team directly."
-        },
-        {
-          id: 7,
-          title: "The POS System Disconnect",
-          category: "integration",
-          merchantSays: "Our cash register used to send the amount directly to the terminal, but now we have to type the amount manually on the terminal every time. It's slowing everything down and we're making mistakes.",
-          additionalInfo: [
-            "Terminal model: Verifone P400 connected to POS system",
-            "The integration was working until they updated their POS software last week",
-            "The terminal is physically connected via USB cable",
-            "The POS system shows 'Terminal not found' error",
-            "No changes were made to the terminal itself"
-          ],
-          keyQuestions: [
-            "When did this issue start? Did anything change around that time?",
-            "What type of connection does the terminal use to the POS (USB, Serial, Ethernet)?",
-            "Did you update any software on the POS or terminal recently?",
-            "Does the POS system show any error messages when trying to connect to the terminal?"
-          ],
-          rootCause: "Integration - POS software update broke terminal communication protocol",
-          explanation: "The P400 PIN pad relies on communication with the POS system to receive transaction amounts and return payment results. When the POS software was updated, the integration/communication settings may have changed, drivers may have been reset, or the communication protocol might have changed. The terminal itself is fine (merchant can type amounts manually), but the automated connection between POS and terminal is broken.",
-          resolution: "This requires coordination between the POS vendor and payment terminal support. The merchant should contact their POS software provider to check if the terminal integration settings need to be reconfigured after the update. They may need to: 1) Reinstall the terminal drivers, 2) Reconfigure the COM port or USB settings, 3) Update the integration module to match the new POS version. As a temporary workaround, manual amount entry can be used."
-        },
-        {
-          id: 8,
-          title: "The Partial Payment Problem",
-          category: "config",
-          merchantSays: "A customer wanted to split their payment between two cards, but the terminal doesn't give us that option anymore. We used to be able to do this. Also, the contactless limit seems wrong - it's asking for PIN on small amounts.",
-          additionalInfo: [
-            "Terminal was replaced 2 weeks ago due to damage",
-            "The old terminal allowed split payments",
-            "Contactless PIN is being requested for transactions over 200 SEK (should be 400 SEK)",
-            "The terminal is processing normal transactions fine",
-            "The merchant hasn't contacted support since receiving the replacement"
-          ],
-          keyQuestions: [
-            "Is this a new/replacement terminal or the same one you've always had?",
-            "Were there specific features enabled on your old terminal that you requested?",
-            "What is the contactless limit showing in the terminal settings (if accessible)?",
-            "Did you have any custom configurations on your previous terminal?"
-          ],
-          rootCause: "Configuration - Replacement terminal missing custom feature configurations",
-          explanation: "When a terminal is replaced, it receives a standard configuration. Custom features like split payments and adjusted contactless limits are not always automatically transferred to the new terminal. These features require specific configuration flags to be enabled. The replacement terminal was set up with default settings, not the merchant's custom profile from their previous terminal.",
-          resolution: "Document what features the merchant needs (split payments, correct contactless limit of 400 SEK) and submit a configuration change request. The back-end team will need to update the merchant's terminal profile and push a parameter update. Explain to the merchant that custom features need to be re-enabled on replacement terminals and this is a known step in the replacement process."
+          explanation: "This is legitimate, not a scam. Payment providers are legally required to maintain up-to-date information about their merchants (KYC) to comply with anti-money laundering regulations. KYC reviews are triggered periodically or when changes are detected (like a new business partner). If the merchant doesn't respond, services must be suspended by law.",
+          resolution: "Reassure the merchant this is legitimate and normal. Direct them to complete the KYC form digitally through the merchant portal or via the email link. Explain this is required by law to prevent financial crime. Emphasize the deadline and consequences of not responding."
         }
       ];
 
-      const rootCauseTemplate = {
-        title: "Root Cause Analysis Template",
-        sections: [
-          {
-            name: "1. GATHER - Collect Information",
-            color: "bg-blue-50 border-blue-200",
-            questions: [
-              "What exactly is happening? (Describe the symptom)",
-              "When did it start? What was the last time it worked correctly?",
-              "Did anything change recently? (Updates, moves, new equipment, etc.)",
-              "Is it affecting all transactions or only specific types?",
-              "What terminal model is it? (Countertop, portable, PIN pad?)"
-            ]
-          },
-          {
-            name: "2. ISOLATE - Narrow Down the Problem",
-            color: "bg-yellow-50 border-yellow-200",
-            questions: [
-              "Does the issue occur all the time or intermittently?",
-              "Have you tried restarting the terminal?",
-              "Are other functions working? (Display, printer, specific card readers)",
-              "Is the issue with one terminal or multiple?",
-              "Are other merchants reporting similar issues?"
-            ]
-          },
-          {
-            name: "3. IDENTIFY - Determine the Category",
-            color: "bg-green-50 border-green-200",
-            questions: [
-              "HARDWARE: Are there physical signs of damage? Do specific components not work?",
-              "POWER: Are there any lights on? Did power get interrupted?",
-              "NETWORK: Is the terminal showing connected? Can it communicate?",
-              "CONFIGURATION: Did settings change? Is it a new/replacement terminal?",
-              "SOFTWARE: Is the date/time correct? Are there error codes?",
-              "AGREEMENT: Are there pending KYC requests? Is the merchant account active?",
-              "INTEGRATION: Is this connected to a POS? Did the POS software change?"
-            ]
-          },
-          {
-            name: "4. VERIFY - Confirm Your Hypothesis",
-            color: "bg-purple-50 border-purple-200",
-            questions: [
-              "Does my suspected cause explain ALL the symptoms?",
-              "If I'm right, what should happen when we apply the fix?",
-              "Are there any other possible causes I should rule out first?",
-              "Do I have enough information to proceed, or do I need more details?"
-            ]
-          },
-          {
-            name: "5. RESOLVE - Apply Solution & Confirm",
-            color: "bg-pink-50 border-pink-200",
-            questions: [
-              "What is the fix? Can the merchant do it themselves?",
-              "If not, what needs to be escalated and to whom?",
-              "How will we confirm the issue is resolved?",
-              "What should the merchant do if the issue returns?"
-            ]
-          }
-        ]
-      };
+      const categoryOrder = ['hardware', 'power', 'network', 'config', 'software', 'agreement'];
 
-      const categoryOrder = ['hardware', 'power', 'network', 'config', 'software', 'agreement', 'integration'];
+      const handleScenarioClick = (scenario) => {
+        if (activeScenario?.id === scenario.id) {
+          setActiveScenario(null);
+        } else {
+          setActiveScenario(scenario);
+          setShowAdditionalInfo(false);
+          setShowKeyQuestions(false);
+          setShowAnswer(false);
+        }
+      };
 
       return (
         <div className="min-h-screen bg-gray-100 p-4">
           <div className="max-w-6xl mx-auto">
+            
             {/* Header */}
             <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
               <h1 className="text-2xl font-bold text-gray-800 mb-2">Root Cause Analysis Training</h1>
-              <p className="text-gray-600">Practice identifying the root cause of terminal issues. Read each scenario, think about what could be wrong, then reveal the answer.</p>
+              <p className="text-gray-600 mb-4">Practice identifying the root cause of terminal issues. Analyze each scenario step by step.</p>
               
               {/* Category Legend */}
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 <span className="text-sm text-gray-500 mr-2">Categories:</span>
                 {categoryOrder.map(key => (
                   <span key={key} className={`text-xs px-2 py-1 rounded-full border ${categories[key].color}`}>
@@ -294,312 +277,319 @@
             </div>
 
             {/* Instructions Section */}
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-6 mb-6 text-white">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold flex items-center gap-2">
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl shadow-lg p-5 mb-6 text-white">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-bold flex items-center gap-2">
                   📖 How to Use This Training Tool
                 </h2>
                 <button
                   onClick={() => setShowInstructions(!showInstructions)}
                   className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition-colors text-sm"
                 >
-                  {showInstructions ? 'Hide' : 'Show'} Instructions
+                  {showInstructions ? '▲ Hide' : '▼ Show'}
                 </button>
               </div>
               
               {showInstructions && (
-                <div className="space-y-4">
+                <div className="mt-4 space-y-4">
                   {/* Page Structure */}
                   <div className="bg-white/10 rounded-lg p-4">
                     <h3 className="font-bold mb-2">🗂️ Page Structure</h3>
-                    <ul className="space-y-1 text-sm">
-                      <li><strong>1. Instructions (this section)</strong> - Overview of how to use the tool</li>
-                      <li><strong>2. Root Cause Analysis Template</strong> - A 5-step framework with questions to guide your troubleshooting</li>
-                      <li><strong>3. Scenario Cards</strong> - 8 practice scenarios organized in a grid (click any to start)</li>
-                      <li><strong>4. Scenario Detail Panel</strong> - Appears when you select a scenario with full information</li>
-                      <li><strong>5. The 5 Whys Technique</strong> - A reminder of this helpful analysis method at the bottom</li>
-                    </ul>
-                  </div>
-
-                  {/* Step by Step */}
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <h3 className="font-bold mb-2">📝 Step-by-Step: How to Solve Each Scenario</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">1</span>
-                        <span><strong>Read the Template First</strong> - Familiarize yourself with the 5-step framework (GATHER → ISOLATE → IDENTIFY → VERIFY → RESOLVE)</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">2</span>
-                        <span><strong>Select a Scenario</strong> - Click any scenario card from the grid to open it</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">3</span>
-                        <span><strong>Read "What the merchant says"</strong> - This is what you would hear on a call</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">4</span>
-                        <span><strong>Review Additional Information</strong> - Details gathered during the conversation</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">5</span>
-                        <span><strong>Think About Key Questions</strong> - What would you ask? What category might this be?</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">6</span>
-                        <span><strong>Form Your Hypothesis</strong> - Before revealing, decide what YOU think the root cause is</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">7</span>
-                        <span><strong>Click "Reveal Root Cause"</strong> - See the answer, explanation, and resolution</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0">8</span>
-                        <span><strong>Compare & Learn</strong> - Did you get it right? Understand why that's the answer</span>
-                      </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+                      <div>1. <strong>Template</strong> - 5-step troubleshooting framework</div>
+                      <div>2. <strong>Quick Identifier</strong> - Fast category hints</div>
+                      <div>3. <strong>Scenarios</strong> - 6 practice cases to solve</div>
                     </div>
                   </div>
 
-                  {/* Categories Explained */}
+                  {/* How to Solve */}
                   <div className="bg-white/10 rounded-lg p-4">
-                    <h3 className="font-bold mb-2">🏷️ The 7 Root Cause Categories</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                      <div><span className="inline-block w-3 h-3 bg-red-400 rounded mr-2"></span><strong>Hardware</strong> - Physical components broken or damaged</div>
-                      <div><span className="inline-block w-3 h-3 bg-yellow-400 rounded mr-2"></span><strong>Power Source</strong> - No power, battery, or electrical issues</div>
-                      <div><span className="inline-block w-3 h-3 bg-blue-400 rounded mr-2"></span><strong>Network</strong> - Wi-Fi, Ethernet, SIM, connectivity problems</div>
-                      <div><span className="inline-block w-3 h-3 bg-purple-400 rounded mr-2"></span><strong>Configuration</strong> - Wrong settings, parameters, or missing features</div>
-                      <div><span className="inline-block w-3 h-3 bg-green-400 rounded mr-2"></span><strong>Software</strong> - Date/time, updates, application errors</div>
-                      <div><span className="inline-block w-3 h-3 bg-orange-400 rounded mr-2"></span><strong>Agreement/KYC</strong> - Compliance, contracts, merchant verification</div>
-                      <div><span className="inline-block w-3 h-3 bg-pink-400 rounded mr-2"></span><strong>Integration</strong> - POS system, ECR, third-party connections</div>
+                    <h3 className="font-bold mb-2">📝 How to Solve Each Scenario</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-white/30 rounded-full w-5 h-5 flex items-center justify-center text-xs">1</span>
+                        <span>Click a scenario tile</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-white/30 rounded-full w-5 h-5 flex items-center justify-center text-xs">2</span>
+                        <span>Read what merchant says</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-white/30 rounded-full w-5 h-5 flex items-center justify-center text-xs">3</span>
+                        <span>Think: what would you ask?</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="bg-white/30 rounded-full w-5 h-5 flex items-center justify-center text-xs">4</span>
+                        <span>Reveal info step by step</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Tips */}
-                  <div className="bg-white/10 rounded-lg p-4">
-                    <h3 className="font-bold mb-2">💡 Tips for Success</h3>
-                    <ul className="text-sm space-y-1">
-                      <li>• <strong>Don't rush</strong> - Take time to read all the information before guessing</li>
-                      <li>• <strong>Look for clues</strong> - Details like "moved the terminal" or "updated software" are hints</li>
-                      <li>• <strong>Use the template</strong> - The 5-step framework helps structure your thinking</li>
-                      <li>• <strong>Consider multiple causes</strong> - Sometimes symptoms can point to different issues</li>
-                      <li>• <strong>Learn from explanations</strong> - Even if you got it right, read WHY it's the answer</li>
-                    </ul>
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="flex items-center gap-1">💡 <strong>Tip:</strong> Form your hypothesis before revealing answers</div>
+                    <div className="flex items-center gap-1">🎯 <strong>Goal:</strong> Identify the correct root cause category</div>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Toggle Template */}
-            <button
-              onClick={() => setShowTemplate(!showTemplate)}
-              className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2"
-            >
-              {showTemplate ? '📋 Hide' : '📋 Show'} Root Cause Analysis Template
-            </button>
-
-            {/* Template Section */}
-            {showTemplate && (
-              <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">{rootCauseTemplate.title}</h2>
-                <p className="text-gray-600 mb-4">Use this framework when troubleshooting any terminal issue:</p>
-                
-                <div className="space-y-4">
-                  {rootCauseTemplate.sections.map((section, idx) => (
-                    <div key={idx} className={`p-4 rounded-lg border-2 ${section.color}`}>
-                      <h3 className="font-bold text-gray-800 mb-2">{section.name}</h3>
-                      <ul className="space-y-1">
-                        {section.questions.map((q, qIdx) => (
-                          <li key={qIdx} className="text-sm text-gray-700 flex items-start gap-2">
-                            <span className="text-gray-400 mt-0.5">→</span>
-                            {q}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Quick Decision Tree */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg border-2 border-gray-200">
-                  <h3 className="font-bold text-gray-800 mb-3">🎯 Quick Category Identifier</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                    <div className="flex items-start gap-2">
-                      <span className="text-red-500">●</span>
-                      <span><strong>No lights at all?</strong> → Power Source</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-red-500">●</span>
-                      <span><strong>One reader doesn't work?</strong> → Hardware</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-blue-500">●</span>
-                      <span><strong>Connection drops/errors?</strong> → Network</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-purple-500">●</span>
-                      <span><strong>Wrong info on receipts?</strong> → Configuration</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-green-500">●</span>
-                      <span><strong>All cards declined?</strong> → Software (check date/time)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-orange-500">●</span>
-                      <span><strong>Service termination warning?</strong> → Agreement/KYC</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-pink-500">●</span>
-                      <span><strong>POS not sending amounts?</strong> → Integration</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="text-purple-500">●</span>
-                      <span><strong>Feature missing after replacement?</strong> → Configuration</span>
-                    </div>
-                  </div>
-                </div>
+            {/* Root Cause Analysis Template - Horizontal Tiles */}
+            <div className="bg-white rounded-xl shadow-lg p-5 mb-6">
+              <h2 className="text-lg font-bold text-gray-800 mb-4">🔧 Root Cause Analysis Template</h2>
+              
+              {/* Step Tiles */}
+              <div className="grid grid-cols-5 gap-2 mb-4">
+                {templateSteps.map((step) => (
+                  <button
+                    key={step.id}
+                    onClick={() => setActiveTemplateStep(activeTemplateStep === step.id ? null : step.id)}
+                    className={`p-3 rounded-lg text-white text-center transition-all ${
+                      activeTemplateStep === step.id ? step.activeColor : step.color
+                    }`}
+                  >
+                    <div className="font-bold text-sm">{step.title}</div>
+                    <div className="text-xs opacity-90">{step.subtitle}</div>
+                  </button>
+                ))}
               </div>
-            )}
 
-            {/* Scenarios Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {scenarios.map((scenario) => (
-                <div
-                  key={scenario.id}
-                  onClick={() => { setActiveScenario(scenario); setShowAnswer(false); }}
-                  className={`bg-white rounded-xl shadow-lg p-5 cursor-pointer transition-all hover:shadow-xl hover:scale-[1.02] ${
-                    activeScenario?.id === scenario.id ? 'ring-2 ring-blue-500' : ''
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-sm font-medium text-gray-400">Scenario {scenario.id}</span>
-                    <span className={`text-xs px-2 py-1 rounded-full border ${categories[scenario.category].color}`}>
-                      {categories[scenario.category].label}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-gray-800 mb-2">{scenario.title}</h3>
-                  <p className="text-sm text-gray-600 line-clamp-2">"{scenario.merchantSays.substring(0, 100)}..."</p>
-                  <div className="mt-3 text-blue-600 text-sm font-medium">Click to analyze →</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Active Scenario Detail */}
-            {activeScenario && (
-              <div className="bg-white rounded-xl shadow-lg p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <span className="text-sm text-gray-400">Scenario {activeScenario.id}</span>
-                    <h2 className="text-xl font-bold text-gray-800">{activeScenario.title}</h2>
-                  </div>
-                  <span className={`text-sm px-3 py-1 rounded-full border ${categories[activeScenario.category].color}`}>
-                    {categories[activeScenario.category].label}
-                  </span>
-                </div>
-
-                {/* Merchant Says */}
-                <div className="bg-blue-50 rounded-lg p-4 mb-4">
-                  <h3 className="font-semibold text-blue-800 mb-2">📞 What the merchant says:</h3>
-                  <p className="text-gray-700 italic">"{activeScenario.merchantSays}"</p>
-                </div>
-
-                {/* Additional Info */}
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <h3 className="font-semibold text-gray-800 mb-2">📋 Additional information gathered:</h3>
+              {/* Expanded Questions */}
+              {activeTemplateStep && (
+                <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-gray-300 animate-fadeIn">
+                  <h4 className="font-semibold text-gray-700 mb-2">
+                    Questions to ask during "{templateSteps.find(s => s.id === activeTemplateStep)?.title}":
+                  </h4>
                   <ul className="space-y-1">
-                    {activeScenario.additionalInfo.map((info, idx) => (
-                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-gray-400">•</span>
-                        {info}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Key Questions */}
-                <div className="bg-yellow-50 rounded-lg p-4 mb-4">
-                  <h3 className="font-semibold text-yellow-800 mb-2">❓ Key questions to consider:</h3>
-                  <ul className="space-y-1">
-                    {activeScenario.keyQuestions.map((q, idx) => (
-                      <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                        <span className="text-yellow-500">{idx + 1}.</span>
+                    {templateSteps.find(s => s.id === activeTemplateStep)?.questions.map((q, idx) => (
+                      <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="text-gray-400">→</span>
                         {q}
                       </li>
                     ))}
                   </ul>
                 </div>
+              )}
+            </div>
 
-                {/* Think About It Prompt */}
-                {!showAnswer && (
-                  <div className="text-center py-6">
-                    <p className="text-gray-600 mb-4">Think about what could be the root cause before revealing the answer...</p>
-                    <button
-                      onClick={() => setShowAnswer(true)}
-                      className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
-                    >
-                      🔍 Reveal Root Cause Analysis
-                    </button>
-                  </div>
-                )}
-
-                {/* Answer Section */}
-                {showAnswer && (
-                  <div className="space-y-4 border-t-2 border-gray-200 pt-4 mt-4">
-                    {/* Root Cause */}
-                    <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
-                      <h3 className="font-bold text-red-800 mb-1">🎯 Root Cause:</h3>
-                      <p className="text-gray-800 font-medium">{activeScenario.rootCause}</p>
-                    </div>
-
-                    {/* Explanation */}
-                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <h3 className="font-bold text-blue-800 mb-1">💡 Explanation:</h3>
-                      <p className="text-gray-700">{activeScenario.explanation}</p>
-                    </div>
-
-                    {/* Resolution */}
-                    <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
-                      <h3 className="font-bold text-green-800 mb-1">✅ Resolution:</h3>
-                      <p className="text-gray-700">{activeScenario.resolution}</p>
-                    </div>
-
-                    {/* Next Scenario Button */}
-                    <div className="flex justify-between items-center pt-4">
-                      <button
-                        onClick={() => setShowAnswer(false)}
-                        className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                      >
-                        ← Hide Answer
-                      </button>
-                      {activeScenario.id < scenarios.length && (
-                        <button
-                          onClick={() => {
-                            setActiveScenario(scenarios[activeScenario.id]);
-                            setShowAnswer(false);
-                          }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                          Next Scenario →
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Tips Footer */}
-            <div className="mt-6 bg-indigo-50 rounded-xl p-6">
-              <h3 className="font-bold text-indigo-800 mb-3">💡 Remember: The 5 Whys Technique</h3>
-              <p className="text-gray-700 mb-3">When analyzing root causes, keep asking "Why?" to dig deeper:</p>
-              <div className="text-sm text-gray-600 space-y-1 pl-4">
-                <p><strong>1.</strong> Why is the terminal not working? → "The screen is blank"</p>
-                <p><strong>2.</strong> Why is the screen blank? → "There's no power"</p>
-                <p><strong>3.</strong> Why is there no power? → "The cable is disconnected"</p>
-                <p><strong>4.</strong> Why is the cable disconnected? → "The merchant moved the terminal"</p>
-                <p><strong>5.</strong> Why wasn't it reconnected? → "They didn't realize it came loose"</p>
-                <p className="pt-2 text-indigo-700 font-medium">→ Root Cause: Cable disconnected during terminal relocation. Resolution: Reconnect and educate.</p>
+            {/* Quick Category Identifier */}
+            <div className="bg-amber-50 rounded-xl shadow-lg p-5 mb-6 border border-amber-200">
+              <h3 className="font-bold text-amber-800 mb-3">🎯 Quick Category Identifier</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span><strong>No lights?</strong> → Power</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span><strong>One reader broken?</strong> → Hardware</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                  <span><strong>Connection drops?</strong> → Network</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                  <span><strong>Wrong receipt info?</strong> → Config</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span><strong>All cards declined?</strong> → Software</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/60 p-2 rounded">
+                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span><strong>Service warning?</strong> → Agreement</span>
+                </div>
               </div>
             </div>
+
+            {/* The 5 Whys Technique */}
+            <div className="bg-indigo-50 rounded-xl shadow-lg p-5 mb-6 border border-indigo-200">
+              <h3 className="font-bold text-indigo-800 mb-2">💡 The 5 Whys Technique</h3>
+              <p className="text-sm text-gray-600 mb-2">Keep asking "Why?" to dig deeper to the root cause:</p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="bg-indigo-100 px-2 py-1 rounded">Why not working? → Blank screen</span>
+                <span className="text-indigo-400">→</span>
+                <span className="bg-indigo-100 px-2 py-1 rounded">Why blank? → No power</span>
+                <span className="text-indigo-400">→</span>
+                <span className="bg-indigo-100 px-2 py-1 rounded">Why no power? → Cable loose</span>
+                <span className="text-indigo-400">→</span>
+                <span className="bg-indigo-100 px-2 py-1 rounded">Why loose? → Terminal moved</span>
+                <span className="text-indigo-400">→</span>
+                <span className="bg-indigo-200 px-2 py-1 rounded font-medium">Root Cause!</span>
+              </div>
+            </div>
+
+            {/* Scenarios Section */}
+            <div className="bg-white rounded-xl shadow-lg p-5">
+              <h2 className="text-lg font-bold text-gray-800 mb-4">🎓 Practice Scenarios</h2>
+              
+              {/* Scenario Tiles */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-4">
+                {scenarios.map((scenario) => (
+                  <button
+                    key={scenario.id}
+                    onClick={() => handleScenarioClick(scenario)}
+                    className={`p-4 rounded-lg text-left transition-all border-2 ${
+                      activeScenario?.id === scenario.id 
+                        ? 'bg-blue-50 border-blue-500 shadow-md' 
+                        : 'bg-gray-50 border-gray-200 hover:border-blue-300 hover:bg-blue-50/50'
+                    }`}
+                  >
+                    <div className="text-xs text-gray-400 mb-1">Scenario {scenario.id}</div>
+                    <div className="font-semibold text-gray-800 text-sm leading-tight">{scenario.title}</div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Active Scenario Detail */}
+              {activeScenario && (
+                <div className="border-t-2 border-gray-100 pt-5 mt-2">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-gray-800">
+                      Scenario {activeScenario.id}: {activeScenario.title}
+                    </h3>
+                    <button 
+                      onClick={() => setActiveScenario(null)}
+                      className="text-gray-400 hover:text-gray-600 text-xl"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {/* What the merchant says */}
+                  <div className="bg-blue-50 rounded-lg p-4 mb-4 border-l-4 border-blue-500">
+                    <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                      📞 What the merchant says:
+                    </h4>
+                    <p className="text-gray-700 italic text-lg">"{activeScenario.merchantSays}"</p>
+                  </div>
+
+                  {/* Prompt */}
+                  <div className="bg-gray-100 rounded-lg p-4 mb-4 text-center">
+                    <p className="text-gray-700 font-medium">🤔 Which questions would you ask?</p>
+                    <p className="text-gray-500 text-sm mt-1">Think about what information you need before revealing more...</p>
+                  </div>
+
+                  {/* Progressive Reveal Buttons */}
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <button
+                      onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                        showAdditionalInfo 
+                          ? 'bg-gray-200 text-gray-700' 
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      {showAdditionalInfo ? '✓' : '1.'} Additional Information Gathered
+                      <span className="text-xs">{showAdditionalInfo ? '▲' : '▼'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowKeyQuestions(!showKeyQuestions)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                        showKeyQuestions 
+                          ? 'bg-yellow-200 text-yellow-800' 
+                          : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
+                      }`}
+                    >
+                      {showKeyQuestions ? '✓' : '2.'} Key Questions to Consider
+                      <span className="text-xs">{showKeyQuestions ? '▲' : '▼'}</span>
+                    </button>
+
+                    <button
+                      onClick={() => setShowAnswer(!showAnswer)}
+                      className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+                        showAnswer 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      }`}
+                    >
+                      {showAnswer ? '✓' : '3.'} Look at the Answer
+                      <span className="text-xs">{showAnswer ? '▲' : '▼'}</span>
+                    </button>
+                  </div>
+
+                  {/* Additional Info - Expandable */}
+                  {showAdditionalInfo && (
+                    <div className="bg-gray-50 rounded-lg p-4 mb-4 border-l-4 border-gray-400">
+                      <h4 className="font-semibold text-gray-700 mb-2">📋 Additional information gathered:</h4>
+                      <ul className="space-y-1">
+                        {activeScenario.additionalInfo.map((info, idx) => (
+                          <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+                            <span className="text-gray-400">•</span>
+                            {info}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Key Questions - Expandable */}
+                  {showKeyQuestions && (
+                    <div className="bg-yellow-50 rounded-lg p-4 mb-4 border-l-4 border-yellow-400">
+                      <h4 className="font-semibold text-yellow-800 mb-2">❓ Key questions you could ask:</h4>
+                      <ul className="space-y-1">
+                        {activeScenario.keyQuestions.map((q, idx) => (
+                          <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                            <span className="text-yellow-500 font-bold">{idx + 1}.</span>
+                            {q}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Answer Section - Expandable */}
+                  {showAnswer && (
+                    <div className="space-y-3">
+                      <div className="bg-red-50 rounded-lg p-4 border-l-4 border-red-500">
+                        <h4 className="font-bold text-red-800 mb-1 flex items-center gap-2">
+                          🎯 Root Cause:
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${categories[activeScenario.category].color}`}>
+                            {categories[activeScenario.category].label}
+                          </span>
+                        </h4>
+                        <p className="text-gray-800 font-medium">{activeScenario.rootCause}</p>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
+                        <h4 className="font-bold text-blue-800 mb-1">💡 Explanation:</h4>
+                        <p className="text-gray-700 text-sm">{activeScenario.explanation}</p>
+                      </div>
+
+                      <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-500">
+                        <h4 className="font-bold text-green-800 mb-1">✅ Resolution:</h4>
+                        <p className="text-gray-700 text-sm">{activeScenario.resolution}</p>
+                      </div>
+
+                      {/* Next Scenario */}
+                      {activeScenario.id < scenarios.length && (
+                        <div className="text-center pt-4">
+                          <button
+                            onClick={() => {
+                              handleScenarioClick(scenarios[activeScenario.id]);
+                            }}
+                            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            Next Scenario →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Empty State */}
+              {!activeScenario && (
+                <div className="text-center py-8 text-gray-400">
+                  <p className="text-4xl mb-2">👆</p>
+                  <p>Click on a scenario tile above to start practicing</p>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       );
