@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es-MX">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authorization & Settlement: Who Does What?</title>
+    <title>Autorización y Liquidación: ¿Quién Hace Qué?</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
@@ -12,56 +12,56 @@
         .party-btn.selected { transform: scale(1.1); }
         .issue-card { cursor: pointer; }
         .issue-details { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-        .issue-details.expanded { max-height: 500px; }
+        .issue-details.expanded { max-height: 700px; }
     </style>
 </head>
 <body class="bg-gray-50">
     <div class="max-w-7xl mx-auto p-6">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">Authorization & Settlement: Who Does What?</h1>
-            <p class="text-gray-600 mb-4">Understanding the parties involved in payment processing</p>
-            
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Autorización y Liquidación: ¿Quién Hace Qué?</h1>
+            <p class="text-gray-600 mb-4">Conoce a los que participan en una transacción con tarjeta</p>
+
             <div class="bg-white rounded-lg border-2 border-blue-200 p-4 mb-6">
-                <h3 class="font-bold text-blue-900 mb-3">How to Use This Tool</h3>
+                <h3 class="font-bold text-blue-900 mb-3">Cómo Usar Esta Herramienta</h3>
                 <div class="space-y-2 text-sm text-gray-700">
-                    <p><strong>Step 1:</strong> Choose a phase below - <span class="font-semibold text-blue-700">Authorization</span> (the instant approval/decline) or <span class="font-semibold text-green-700">Settlement</span> (when money moves days later)</p>
-                    <p><strong>Step 2:</strong> Click on any party icon to see what they do in that phase</p>
-                    <p><strong>Step 3:</strong> Click the red issue boxes to see common problems and how to identify who is at fault</p>
+                    <p><strong>Paso 1:</strong> Elige una fase abajo: <span class="font-semibold text-blue-700">Autorización</span> (la aprobación o rechazo instantáneo) o <span class="font-semibold text-green-700">Liquidación</span> (cuando el dinero se mueve días después).</p>
+                    <p><strong>Paso 2:</strong> Haz clic en el ícono de cualquier parte para ver qué hace en esa fase.</p>
+                    <p><strong>Paso 3:</strong> Haz clic en las cajas rojas para ver problemas comunes, cómo identificar quién es responsable, y qué decirle al comercio.</p>
                 </div>
             </div>
         </div>
 
         <div class="mb-8">
-            <h2 class="text-lg font-bold text-gray-900 mb-3">Choose a Phase:</h2>
+            <h2 class="text-lg font-bold text-gray-900 mb-3">Elige una Fase:</h2>
             <div class="flex gap-3">
                 <button onclick="selectPhase('authorization')" id="authBtn" class="flex-1 p-4 rounded-lg border-2 bg-blue-600 text-white border-blue-700 shadow-lg">
-                    <div class="font-bold">Authorization (Real-Time)</div>
-                    <div class="text-sm opacity-90">The 2-3 second approval process</div>
+                    <div class="font-bold">Autorización (Tiempo Real)</div>
+                    <div class="text-sm opacity-90">El proceso de aprobación de 2-3 segundos</div>
                 </button>
                 <button onclick="selectPhase('settlement')" id="settlementBtn" class="flex-1 p-4 rounded-lg border-2 bg-white text-gray-700 border-gray-300 hover:border-blue-400">
-                    <div class="font-bold">Settlement (1-3 Days Later)</div>
-                    <div class="text-sm opacity-90">When money actually moves</div>
+                    <div class="font-bold">Liquidación (1-3 Días Después)</div>
+                    <div class="text-sm opacity-90">Cuando el dinero realmente se mueve</div>
                 </button>
             </div>
         </div>
 
         <div class="mb-8">
-            <h2 class="text-lg font-bold text-gray-900 mb-3">Select a Party:</h2>
+            <h2 class="text-lg font-bold text-gray-900 mb-3">Selecciona una Parte:</h2>
             <div class="bg-white rounded-lg shadow-md p-6">
                 <div class="flex justify-between items-center gap-3" id="partiesContainer"></div>
                 <div class="mt-4 pt-4 border-t border-gray-200">
                     <div class="flex justify-between text-xs text-gray-600">
-                        <span>Customer</span>
+                        <span>Tarjetahabiente</span>
                         <span>→</span>
                         <span>Terminal</span>
                         <span>→</span>
-                        <span>Processor</span>
+                        <span>Procesador</span>
                         <span>→</span>
-                        <span>Acquirer</span>
+                        <span>Adquirente</span>
                         <span>→</span>
-                        <span>Network</span>
+                        <span>Red</span>
                         <span>→</span>
-                        <span>Bank</span>
+                        <span>Emisor</span>
                     </div>
                 </div>
             </div>
@@ -77,124 +77,124 @@
 
         const parties = {
             cardholder: {
-                name: 'Cardholder',
+                name: 'Tarjetahabiente',
                 color: 'purple',
-                simpleExplanation: 'This is the customer - the person buying something with their card',
-                swedishExample: 'Anna shopping at Hemköp with her Swedbank card',
+                simpleExplanation: 'Es el cliente, la persona que compra algo con su tarjeta',
+                mexicoExample: 'María comprando en OXXO con su tarjeta de débito BBVA',
                 authorization: {
-                    steps: ['Present card to terminal (tap, insert, or swipe)', 'Enter PIN if required', 'Wait for approval'],
-                    validations: ['None - cardholder does not validate anything', 'They just initiate the transaction'],
+                    steps: ['Presenta la tarjeta a la terminal (acerca, inserta o desliza)', 'Ingresa el NIP si se le solicita', 'Espera la aprobación'],
+                    validations: ['Ninguna. El tarjetahabiente no valida nada', 'Solo inicia la transacción'],
                     commonIssues: [
-                        {symptom: 'Card will not read at all', cause: 'Damaged card (chip scratched, magnetic stripe worn)', whatMerchantSees: 'Terminal shows Cannot read card or Card error', whoFixes: 'Customer needs new card from their bank', howToIdentify: 'Try card on different terminal or try different payment method (tap vs chip vs swipe)'},
-                        {symptom: 'Transaction declined - Code 55', cause: 'Customer entered wrong PIN', whatMerchantSees: 'Declined - Incorrect PIN', whoFixes: 'Customer needs to re-enter correct PIN', howToIdentify: 'After 3 attempts, card gets blocked (Code 75)'}
+                        {symptom: 'La tarjeta no se lee', cause: 'Tarjeta dañada (chip rayado, banda magnética desgastada)', whatMerchantSees: 'La terminal muestra "No se puede leer la tarjeta" o "Error de tarjeta"', whoFixes: 'El cliente necesita una tarjeta nueva de su banco', howToIdentify: 'Probar la tarjeta en otra terminal o usar otro método de pago (sin contacto vs chip vs banda)', whatToTellMerchant: 'Parece que la tarjeta tiene un daño físico. Le sugerimos que el cliente intente con otra forma de pago, o que contacte a su banco para reponer la tarjeta.'},
+                        {symptom: 'Transacción rechazada con Código 55', cause: 'El cliente ingresó un NIP incorrecto', whatMerchantSees: 'Rechazada, NIP Incorrecto', whoFixes: 'El cliente debe reingresar el NIP correcto', howToIdentify: 'Después de 3 intentos, la tarjeta se bloquea (Código 75)', whatToTellMerchant: 'El cliente ingresó el NIP incorrecto. Pídale que lo vuelva a intentar. Si falla 3 veces seguidas, la tarjeta se bloquea por seguridad y tendrá que contactar a su banco.'}
                     ]
                 },
                 settlement: {
-                    steps: ['Bank debits their account (money taken out)', 'Statement shows the purchase', 'May see pending charges become final'],
-                    validations: ['None - this happens automatically', 'Customer just sees the charge on their statement'],
+                    steps: ['El banco debita su cuenta (se retira el dinero)', 'El estado de cuenta muestra la compra', 'Los cargos pendientes se vuelven definitivos'],
+                    validations: ['Ninguna. Esto ocurre automáticamente', 'El cliente solo ve el cargo en su estado de cuenta'],
                     commonIssues: [
-                        {symptom: 'Customer says I was charged twice', cause: 'Transaction may have been submitted twice, or authorization hold plus final charge visible', whatMerchantSees: 'May not see duplicate in their system', whoFixes: 'Check if both are settled or if one is just a hold', howToIdentify: 'Look at transaction times and reference numbers'}
+                        {symptom: 'El cliente dice "Me cobraron dos veces"', cause: 'Puede que la transacción se haya enviado dos veces, o que el cliente esté viendo la retención de autorización junto con el cargo final', whatMerchantSees: 'Posiblemente no vea el duplicado en su sistema', whoFixes: 'Verificar si ambos cargos están liquidados o si uno es solo una retención', howToIdentify: 'Revisar horarios de transacción y números de referencia', whatToTellMerchant: 'Necesito verificar si son dos cargos liquidados o si uno es una retención que todavía no se libera. ¿Me puede compartir las fechas, los montos exactos y los últimos 4 dígitos de la tarjeta?'}
                     ]
                 }
             },
             terminal: {
                 name: 'Terminal',
                 color: 'blue',
-                simpleExplanation: 'The physical device that reads the card - owned by the merchant',
-                swedishExample: 'Verifone terminal at ICA checkout',
+                simpleExplanation: 'El dispositivo físico que lee la tarjeta. Es propiedad del comercio',
+                mexicoExample: 'Terminal Verifone T650 en la caja de Walmart',
                 authorization: {
-                    steps: ['Read card data (chip, contactless, or magnetic stripe)', 'Encrypt the card data for security', 'Add transaction details (amount, merchant ID, date/time)', 'Send request through internet to processor', 'Receive response and display to merchant/customer', 'Print receipt if approved'],
-                    validations: ['Check if card is readable', 'Verify card format is valid (Luhn algorithm check)', 'Confirm amount is within allowed range', 'Ensure all required data is captured', 'Check internet connectivity'],
+                    steps: ['Lee los datos de la tarjeta (chip, sin contacto o banda magnética)', 'Encripta los datos de la tarjeta por seguridad', 'Agrega detalles de la transacción (monto, ID del comercio, fecha y hora)', 'Envía la solicitud por internet al procesador', 'Recibe la respuesta y la muestra al comercio y al cliente', 'Imprime el ticket o voucher si la transacción fue aprobada'],
+                    validations: ['Verifica que la tarjeta sea legible', 'Valida que el formato de la tarjeta sea correcto (algoritmo de Luhn)', 'Confirma que el monto esté dentro del rango permitido', 'Asegura que se capturen todos los datos requeridos', 'Verifica la conectividad a internet'],
                     commonIssues: [
-                        {symptom: 'All cards declining with Code 05', cause: 'Terminal cannot reach payment processor', whatMerchantSees: 'Every card declines immediately with same code', whoFixes: 'Check connectivity; verify terminal is properly configured', howToIdentify: 'Pattern: ALL cards fail with same generic code'}
+                        {symptom: 'Todas las tarjetas se rechazan con Código 05', cause: 'La terminal no puede comunicarse con el procesador de pagos', whatMerchantSees: 'Cada tarjeta se rechaza inmediatamente con el mismo código', whoFixes: 'Revisar la conectividad y confirmar que la terminal esté configurada correctamente', howToIdentify: 'Patrón: TODAS las tarjetas fallan con el mismo código genérico', whatToTellMerchant: 'No es problema de las tarjetas de sus clientes. La terminal está teniendo un problema de comunicación. Vamos a revisar la conexión a internet y la configuración. ¿Tiene otras terminales que sí estén operando?'}
                     ]
                 },
                 settlement: {
-                    steps: ['Store approved transactions in memory', 'Close batch at end of day (usually automatic)', 'Send all day transactions to processor for settlement', 'Receive confirmation that batch was processed'],
-                    validations: ['Verify all transactions have authorization codes', 'Check transaction totals match', 'Ensure no duplicate transactions'],
+                    steps: ['Almacena las transacciones aprobadas en memoria', 'Cierra el lote (corte del día) al final del día, usualmente de forma automática', 'Envía todas las transacciones del día al procesador para liquidación', 'Recibe confirmación de que el lote fue procesado'],
+                    validations: ['Verifica que todas las transacciones tengan código de autorización', 'Confirma que los totales coincidan', 'Asegura que no haya transacciones duplicadas'],
                     commonIssues: [
-                        {symptom: 'Transactions approved but merchant not paid', cause: 'Batch never closed or failed to send', whatMerchantSees: 'Yesterday sales not in settlement report', whoFixes: 'Manually close batch on terminal; check batch closure settings', howToIdentify: 'Approved transactions exist but not in settlement'}
+                        {symptom: 'Transacciones aprobadas pero el comercio no recibe el pago', cause: 'El corte de lote nunca se cerró o falló al enviarse', whatMerchantSees: 'Las ventas de ayer no aparecen en el reporte de liquidación', whoFixes: 'Cerrar el corte manualmente en la terminal y revisar la configuración del cierre automático', howToIdentify: 'Existen transacciones aprobadas pero no aparecen en la liquidación', whatToTellMerchant: 'Parece que el corte del día no se cerró o no se envió a procesar. Vamos a hacer el corte manual desde la terminal. Le aviso en cuanto las ventas aparezcan en su liquidación.'}
                     ]
                 }
             },
             processor: {
-                name: 'Processor',
+                name: 'Procesador',
                 color: 'indigo',
-                simpleExplanation: 'The technical company that handles communication between terminal and banks',
-                swedishExample: 'Worldline, Bambora - they process the technical routing',
+                simpleExplanation: 'La empresa técnica que maneja la comunicación entre la terminal y los bancos',
+                mexicoExample: 'Prosa y E-Global, los switches que manejan el ruteo técnico en México',
                 authorization: {
-                    steps: ['Receive transaction from terminal via secure connection', 'Translate terminal data into network format', 'Add security tokens and encryption', 'Route to acquirer based on merchant configuration', 'Receive response from acquirer', 'Translate response back to terminal format', 'Send response to terminal'],
-                    validations: ['Verify terminal is authenticated and authorized', 'Check data format and completeness', 'Validate encryption and security protocols', 'Confirm routing information is correct', 'Monitor for duplicate transactions'],
+                    steps: ['Recibe la transacción de la terminal por conexión segura', 'Traduce los datos de la terminal al formato de la red', 'Agrega tokens de seguridad y encriptación', 'Rutea al adquirente según la configuración del comercio', 'Recibe la respuesta del adquirente', 'Traduce la respuesta al formato de la terminal', 'Devuelve la respuesta a la terminal'],
+                    validations: ['Verifica que la terminal esté autenticada y autorizada', 'Revisa el formato y la integridad de los datos', 'Valida la encriptación y los protocolos de seguridad', 'Confirma que la información de ruteo sea correcta', 'Monitorea transacciones duplicadas'],
                     commonIssues: [
-                        {symptom: 'Connection timeouts on terminal', cause: 'Processor connectivity issue or overload', whatMerchantSees: 'Processing... that never completes', whoFixes: 'Processor technical team; check status pages', howToIdentify: 'Affects multiple terminals in same region or network'}
+                        {symptom: 'La terminal se queda procesando', cause: 'Problema de conectividad o sobrecarga del procesador (Prosa o E-Global)', whatMerchantSees: 'La terminal muestra "Procesando..." y nunca termina', whoFixes: 'Equipo técnico del procesador. Revisar páginas de estado de Prosa y E-Global', howToIdentify: 'Afecta a múltiples terminales en la misma región o red', whatToTellMerchant: 'Hay un problema de comunicación con el procesador en este momento, no es la terminal ni la tarjeta. Le sugerimos esperar unos minutos. Estamos revisando si está afectando a otros comercios.'}
                     ]
                 },
                 settlement: {
-                    steps: ['Collect batch files from terminals', 'Aggregate transactions by acquirer', 'Format settlement data per acquirer requirements', 'Transmit settlement files to acquirers', 'Receive settlement confirmations', 'Provide reports back to terminals/merchants'],
-                    validations: ['Match batch totals to individual transactions', 'Verify all authorizations have corresponding settlements', 'Check for duplicate settlements', 'Confirm file formats meet acquirer specifications'],
+                    steps: ['Recopila los archivos de lote de las terminales', 'Agrupa las transacciones por adquirente', 'Formatea los datos de liquidación según los requerimientos del adquirente', 'Transmite los archivos de liquidación a los adquirentes', 'Recibe las confirmaciones de liquidación', 'Entrega los reportes a las terminales y comercios'],
+                    validations: ['Concilia los totales del lote con las transacciones individuales', 'Verifica que cada autorización tenga su liquidación correspondiente', 'Detecta liquidaciones duplicadas', 'Confirma que el formato del archivo cumpla con las especificaciones del adquirente'],
                     commonIssues: [
-                        {symptom: 'Batch transmission failures', cause: 'Communication error between processor and acquirer', whatMerchantSees: 'Settlement delayed or batch not received', whoFixes: 'Processor retransmits; may need manual intervention', howToIdentify: 'Settlement reports show transmission errors'}
+                        {symptom: 'Fallos en la transmisión del lote', cause: 'Error de comunicación entre el procesador y el adquirente', whatMerchantSees: 'Liquidación retrasada o lote no recibido', whoFixes: 'El procesador retransmite. Puede requerir intervención manual', howToIdentify: 'Los reportes de liquidación muestran errores de transmisión', whatToTellMerchant: 'La liquidación tuvo un problema de transmisión entre el procesador y su adquirente. Ya estamos reenviando el lote. Le confirmamos en cuanto esté procesado correctamente.'}
                     ]
                 }
             },
             acquirer: {
-                name: 'Acquirer',
+                name: 'Adquirente',
                 color: 'teal',
-                simpleExplanation: 'The company that provides payment services to the merchant',
-                swedishExample: 'Swedbank Pay, Nets',
+                simpleExplanation: 'La empresa que provee los servicios de pago al comercio',
+                mexicoExample: 'Banamex (Citibanamex), BBVA México, Banorte, Santander, Getnet',
                 authorization: {
-                    steps: ['Receive transaction from processor', 'Validate merchant account is active', 'Route transaction to correct card network', 'Receive response from card network', 'Send response back to processor'],
-                    validations: ['Verify merchant ID is valid and active', 'Check if transaction type is allowed', 'Validate transaction is within merchant limits'],
+                    steps: ['Recibe la transacción del procesador', 'Valida que la cuenta del comercio esté activa', 'Rutea la transacción a la red de tarjetas correcta', 'Recibe la respuesta de la red de tarjetas', 'Devuelve la respuesta al procesador'],
+                    validations: ['Verifica que el ID del comercio sea válido y esté activo', 'Confirma que el tipo de transacción esté permitido', 'Valida que la transacción esté dentro de los límites del comercio'],
                     commonIssues: [
-                        {symptom: 'Code 03 - Invalid Merchant', cause: 'Merchant account suspended or not activated', whatMerchantSees: 'All transactions fail with Code 03', whoFixes: 'Contact acquirer to verify account status', howToIdentify: 'Happens with ALL cards, not just one'}
+                        {symptom: 'Código 03, Comercio Inválido', cause: 'La cuenta del comercio está suspendida o no activada', whatMerchantSees: 'Todas las transacciones fallan con Código 03', whoFixes: 'Contactar al adquirente para verificar el estado de la cuenta', howToIdentify: 'Sucede con TODAS las tarjetas, no solo con una', whatToTellMerchant: 'Su adquirente tiene la cuenta marcada como inactiva. La terminal está operando bien. Necesita contactar directamente a su adquirente (Banamex, BBVA, Banorte, Santander o Getnet, según corresponda) para reactivarla.'}
                     ]
                 },
                 settlement: {
-                    steps: ['Receive batch from processor', 'Calculate merchant fees', 'Request funds from card networks', 'Deposit money into merchant account (minus fees)', 'Send settlement report'],
-                    validations: ['Match settlements to authorizations', 'Verify no duplicate transactions', 'Calculate and deduct correct fees'],
+                    steps: ['Recibe el lote del procesador', 'Calcula las comisiones del comercio', 'Solicita los fondos a las redes de tarjetas', 'Deposita el dinero en la cuenta del comercio (descontando comisiones)', 'Envía el reporte de liquidación'],
+                    validations: ['Concilia las liquidaciones con las autorizaciones', 'Verifica que no haya transacciones duplicadas', 'Calcula y deduce las comisiones correctas'],
                     commonIssues: [
-                        {symptom: 'Merchant not receiving payments', cause: 'Bank account details incorrect', whatMerchantSees: 'Transactions processed but no money received', whoFixes: 'Verify bank account details with acquirer', howToIdentify: 'Check settlement reports - are they being generated?'}
+                        {symptom: 'El comercio no recibe los pagos', cause: 'Datos de la cuenta bancaria incorrectos', whatMerchantSees: 'Transacciones procesadas pero no se recibe el dinero', whoFixes: 'Verificar los datos de la cuenta bancaria con el adquirente', howToIdentify: 'Revisar los reportes de liquidación. ¿Se están generando?', whatToTellMerchant: 'Las transacciones se procesaron correctamente, pero el depósito no llegó a su cuenta. Es muy probable que los datos bancarios registrados con su adquirente estén incorrectos. Necesita verificarlos directamente con ellos.'}
                     ]
                 }
             },
             network: {
-                name: 'Card Network',
+                name: 'Red de Tarjetas',
                 color: 'green',
-                simpleExplanation: 'The global network that connects all the banks',
-                swedishExample: 'Visa, Mastercard, Maestro',
+                simpleExplanation: 'La red global que conecta a todos los bancos',
+                mexicoExample: 'Visa, Mastercard, Maestro',
                 authorization: {
-                    steps: ['Receive transaction from acquirer', 'Identify which bank issued the card', 'Route transaction to issuing bank', 'Receive approval/decline from bank', 'Route response back to acquirer'],
-                    validations: ['Verify card number format is correct', 'Validate issuing bank is reachable', 'Apply network rules and security checks'],
+                    steps: ['Recibe la transacción del adquirente', 'Identifica qué banco emitió la tarjeta', 'Rutea la transacción al banco emisor', 'Recibe la aprobación o rechazo del banco', 'Devuelve la respuesta al adquirente'],
+                    validations: ['Verifica que el formato del número de tarjeta sea correcto', 'Valida que el banco emisor esté disponible', 'Aplica las reglas de la red y revisiones de seguridad'],
                     commonIssues: [
-                        {symptom: 'Code 91 - Issuer Unavailable', cause: 'Cannot reach issuing bank', whatMerchantSees: 'Intermittent Code 91', whoFixes: 'Wait for network to resolve', howToIdentify: 'Affects multiple merchants/cards from same bank'}
+                        {symptom: 'Código 91, Emisor No Disponible', cause: 'No se puede contactar al banco emisor', whatMerchantSees: 'Código 91 intermitente', whoFixes: 'Esperar a que la red lo resuelva', howToIdentify: 'Afecta a múltiples comercios o tarjetas del mismo banco', whatToTellMerchant: 'El banco que emitió esa tarjeta no está respondiendo en este momento. No es problema del comercio ni de la terminal. Le sugerimos esperar unos minutos o pedirle al cliente otra forma de pago.'}
                     ]
                 },
                 settlement: {
-                    steps: ['Coordinate fund transfers between banks', 'Apply interchange fees', 'Provide settlement reports'],
-                    validations: ['Match settlement to authorizations', 'Calculate correct interchange fees'],
+                    steps: ['Coordina las transferencias de fondos entre bancos', 'Aplica las comisiones de intercambio', 'Entrega los reportes de liquidación'],
+                    validations: ['Concilia liquidaciones con autorizaciones', 'Calcula las comisiones de intercambio correctas'],
                     commonIssues: [
-                        {symptom: 'Settlement failed for card brand', cause: 'Network settlement system issue', whatMerchantSees: 'One brand settled, another did not', whoFixes: 'Network must resolve', howToIdentify: 'Brand-specific pattern'}
+                        {symptom: 'Liquidación fallida para una marca de tarjeta', cause: 'Problema en el sistema de liquidación de la red', whatMerchantSees: 'Una marca se liquidó, otra no', whoFixes: 'La red debe resolverlo', howToIdentify: 'Patrón específico por marca', whatToTellMerchant: 'La red de esa marca específica (Visa o Mastercard) tuvo un problema de liquidación. Las otras marcas sí se liquidaron normal. Ya estamos en contacto con la red para que lo resuelvan.'}
                     ]
                 }
             },
             issuer: {
-                name: 'Issuer',
+                name: 'Emisor',
                 color: 'orange',
-                simpleExplanation: 'The bank that gave the customer their card',
-                swedishExample: 'Swedbank, SEB, Nordea, Handelsbanken',
+                simpleExplanation: 'El banco que le dio al cliente su tarjeta',
+                mexicoExample: 'BBVA México, Citibanamex, Banorte, Santander, HSBC, Banco Azteca',
                 authorization: {
-                    steps: ['Receive authorization request', 'Verify card is valid and active', 'Check funds or credit available', 'Run fraud detection', 'Make approve/decline decision', 'Send response with code'],
-                    validations: ['Card is valid and active', 'Sufficient balance or credit', 'Transaction within limits', 'No fraud indicators'],
+                    steps: ['Recibe la solicitud de autorización', 'Verifica que la tarjeta sea válida y esté activa', 'Revisa fondos o crédito disponible', 'Ejecuta la detección de fraude', 'Toma la decisión de aprobar o rechazar', 'Envía la respuesta con el código correspondiente'],
+                    validations: ['La tarjeta es válida y está activa', 'Saldo o crédito suficiente', 'Transacción dentro de los límites', 'Sin indicadores de fraude'],
                     commonIssues: [
-                        {symptom: 'Code 51 - Insufficient Funds', cause: 'Not enough money in account', whatMerchantSees: 'Declined with Code 51', whoFixes: 'Customer needs different payment method', howToIdentify: 'Common with Swedish debit cards'},
-                        {symptom: 'Code 05 - Do Not Honor', cause: 'Generic decline - fraud alert, limits, etc', whatMerchantSees: 'Declined with Code 05', whoFixes: 'Customer must contact their bank', howToIdentify: 'Most common decline code'}
+                        {symptom: 'Código 51, Fondos Insuficientes', cause: 'No hay suficiente dinero en la cuenta del cliente', whatMerchantSees: 'Rechazada con Código 51', whoFixes: 'El cliente necesita usar otro método de pago', howToIdentify: 'Muy común en tarjetas de débito mexicanas a fin de quincena (días 14-15 y fin de mes), cuando muchas cuentas tienen saldo bajo', whatToTellMerchant: 'La tarjeta del cliente no tiene fondos suficientes en este momento. Le sugerimos pedirle otra forma de pago. Es muy común a fin de quincena.'},
+                        {symptom: 'Código 05, No Honrada', cause: 'Rechazo genérico del emisor: alerta de fraude, límites excedidos, etc.', whatMerchantSees: 'Rechazada con Código 05', whoFixes: 'El cliente debe contactar a su banco', howToIdentify: 'El código de rechazo más común. El emisor no revela el motivo exacto por seguridad', whatToTellMerchant: 'El banco del cliente rechazó la transacción sin dar motivo específico, generalmente por seguridad. No es problema de su terminal. El cliente necesita contactar a su banco directamente.'}
                     ]
                 },
                 settlement: {
-                    steps: ['Debit cardholder account', 'Transfer funds to card network', 'Update statement'],
-                    validations: ['Match to authorization', 'Verify account has funds'],
+                    steps: ['Debita la cuenta del tarjetahabiente', 'Transfiere los fondos a la red de tarjetas', 'Actualiza el estado de cuenta'],
+                    validations: ['Concilia con la autorización', 'Verifica que la cuenta tenga fondos'],
                     commonIssues: [
-                        {symptom: 'Cardholder initiates chargeback', cause: 'Customer disputes charge', whatMerchantSees: 'Chargeback notification', whoFixes: 'Merchant must provide evidence', howToIdentify: 'Formal chargeback notice'}
+                        {symptom: 'El tarjetahabiente inicia un contracargo', cause: 'El cliente disputa el cargo ante su banco', whatMerchantSees: 'Notificación de contracargo', whoFixes: 'El comercio debe presentar evidencia de la transacción', howToIdentify: 'Notificación formal de contracargo desde el adquirente', whatToTellMerchant: 'El cliente disputó el cargo con su banco. Vamos a apoyarle a reunir la evidencia para defender la transacción: ticket o voucher, video de cámara si tienen, y cualquier registro de entrega del producto o servicio.'}
                     ]
                 }
             }
@@ -211,10 +211,10 @@
 
         function selectPhase(phase) {
             selectedPhase = phase;
-            document.getElementById('authBtn').className = phase === 'authorization' 
+            document.getElementById('authBtn').className = phase === 'authorization'
                 ? 'flex-1 p-4 rounded-lg border-2 bg-blue-600 text-white border-blue-700 shadow-lg'
                 : 'flex-1 p-4 rounded-lg border-2 bg-white text-gray-700 border-gray-300 hover:border-blue-400';
-            document.getElementById('settlementBtn').className = phase === 'settlement' 
+            document.getElementById('settlementBtn').className = phase === 'settlement'
                 ? 'flex-1 p-4 rounded-lg border-2 bg-blue-600 text-white border-blue-700 shadow-lg'
                 : 'flex-1 p-4 rounded-lg border-2 bg-white text-gray-700 border-gray-300 hover:border-blue-400';
             renderDetails();
@@ -257,12 +257,12 @@
 
         function renderDetails() {
             const container = document.getElementById('detailsContainer');
-            
+
             if (!selectedParty) {
                 container.innerHTML = `
                     <div class="bg-white rounded-lg shadow-lg p-12 text-center">
-                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Choose a Party Above</h3>
-                        <p class="text-gray-600 mb-6">Click on any of the 6 parties to see what they do and what can go wrong</p>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">Selecciona una Parte Arriba</h3>
+                        <p class="text-gray-600 mb-6">Haz clic en cualquiera de las 6 partes para ver qué hace y qué puede salir mal</p>
                     </div>
                 `;
                 return;
@@ -277,14 +277,14 @@
                         <h2 class="text-2xl font-bold mb-2">${party.name}</h2>
                         <p class="text-lg mb-2">${party.simpleExplanation}</p>
                         <div class="bg-white bg-opacity-50 rounded px-3 py-2 text-sm">
-                            <strong>Swedish Example:</strong> ${party.swedishExample}
+                            <strong>Ejemplo en México:</strong> ${party.mexicoExample}
                         </div>
                     </div>
 
                     <div class="p-6">
                         <div class="mb-8">
-                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Their Steps</h3>
-                            <h4 class="text-xl font-bold text-gray-900 mb-4">What They Do in ${selectedPhase === 'authorization' ? 'Authorization' : 'Settlement'}</h4>
+                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Sus Pasos</h3>
+                            <h4 class="text-xl font-bold text-gray-900 mb-4">Qué Hacen en ${selectedPhase === 'authorization' ? 'Autorización' : 'Liquidación'}</h4>
                             <div class="bg-gray-50 rounded-lg p-4">
                                 <ol class="space-y-3">
                                     ${phaseData.steps.map((step, i) => `
@@ -298,8 +298,8 @@
                         </div>
 
                         <div class="mb-8">
-                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Their Checks</h3>
-                            <h4 class="text-xl font-bold text-gray-900 mb-4">What They Validate/Check</h4>
+                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Sus Validaciones</h3>
+                            <h4 class="text-xl font-bold text-gray-900 mb-4">Qué Validan o Verifican</h4>
                             <div class="bg-blue-50 rounded-lg p-4">
                                 <ul class="space-y-2">
                                     ${phaseData.validations.map(v => `
@@ -313,8 +313,8 @@
                         </div>
 
                         <div>
-                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Common Problems</h3>
-                            <h4 class="text-xl font-bold text-gray-900 mb-4">Issues Merchants See (That Are Their Fault)</h4>
+                            <h3 class="text-lg font-bold text-gray-700 uppercase tracking-wide mb-1">Problemas Comunes</h3>
+                            <h4 class="text-xl font-bold text-gray-900 mb-4">Problemas que Ven los Comercios (Que Son su Responsabilidad)</h4>
                             <div class="space-y-3">
                                 ${phaseData.commonIssues.map((issue, i) => {
                                     const issueId = `${selectedParty}-${selectedPhase}-${i}`;
@@ -328,18 +328,24 @@
                                             <div class="issue-details ${isExpanded ? 'expanded' : ''} p-4 bg-white border-t-2 border-red-200">
                                                 <div class="grid md:grid-cols-2 gap-4">
                                                     <div>
-                                                        <div class="text-sm font-semibold text-gray-600 uppercase mb-1">What Merchant Sees:</div>
+                                                        <div class="text-sm font-semibold text-gray-600 uppercase mb-1">Qué Ve el Comercio:</div>
                                                         <div class="text-gray-800 bg-gray-50 p-3 rounded">${issue.whatMerchantSees}</div>
                                                     </div>
                                                     <div>
-                                                        <div class="text-sm font-semibold text-gray-600 uppercase mb-1">Who Fixes It:</div>
+                                                        <div class="text-sm font-semibold text-gray-600 uppercase mb-1">Quién Lo Resuelve:</div>
                                                         <div class="text-gray-800 bg-gray-50 p-3 rounded">${issue.whoFixes}</div>
                                                     </div>
                                                 </div>
                                                 <div class="mt-4">
-                                                    <div class="text-sm font-semibold text-gray-600 uppercase mb-1">How to Identify:</div>
+                                                    <div class="text-sm font-semibold text-gray-600 uppercase mb-1">Cómo Identificarlo:</div>
                                                     <div class="text-gray-800 bg-yellow-50 p-3 rounded border border-yellow-200">${issue.howToIdentify}</div>
                                                 </div>
+                                                ${issue.whatToTellMerchant ? `
+                                                <div class="mt-4">
+                                                    <div class="text-sm font-semibold text-green-700 uppercase mb-1">Qué Decirle al Comercio:</div>
+                                                    <div class="text-gray-800 bg-green-50 p-3 rounded border border-green-300 italic">"${issue.whatToTellMerchant}"</div>
+                                                </div>
+                                                ` : ''}
                                             </div>
                                         </div>
                                     `;
